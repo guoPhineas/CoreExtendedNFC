@@ -1,0 +1,61 @@
+import Foundation
+
+/// Memory map for Ultralight/NTAG variants.
+public struct UltralightMemoryMap: Sendable, Equatable {
+    /// Total number of pages on the tag.
+    public let totalPages: UInt8
+    /// First user data page (usually 4).
+    public let userDataStart: UInt8
+    /// Last user data page (inclusive).
+    public let userDataEnd: UInt8
+    /// First configuration page (EV1/NTAG only).
+    public let configStart: UInt8?
+    /// First dynamic lock byte page (if applicable).
+    public let dynamicLockStart: UInt8?
+
+    /// Build memory map for a specific card type.
+    public static func forType(_ type: CardType) -> UltralightMemoryMap {
+        switch type {
+        case .mifareUltralight:
+            UltralightMemoryMap(
+                totalPages: 16, userDataStart: 4, userDataEnd: 15,
+                configStart: nil, dynamicLockStart: nil
+            )
+        case .mifareUltralightC:
+            UltralightMemoryMap(
+                totalPages: 48, userDataStart: 4, userDataEnd: 39,
+                configStart: 42, dynamicLockStart: 40
+            )
+        case .mifareUltralightEV1_MF0UL11:
+            UltralightMemoryMap(
+                totalPages: 20, userDataStart: 4, userDataEnd: 15,
+                configStart: 16, dynamicLockStart: nil
+            )
+        case .mifareUltralightEV1_MF0UL21:
+            UltralightMemoryMap(
+                totalPages: 41, userDataStart: 4, userDataEnd: 35,
+                configStart: 37, dynamicLockStart: 36
+            )
+        case .ntag213:
+            UltralightMemoryMap(
+                totalPages: 45, userDataStart: 4, userDataEnd: 39,
+                configStart: 41, dynamicLockStart: 40
+            )
+        case .ntag215:
+            UltralightMemoryMap(
+                totalPages: 135, userDataStart: 4, userDataEnd: 129,
+                configStart: 131, dynamicLockStart: 130
+            )
+        case .ntag216:
+            UltralightMemoryMap(
+                totalPages: 231, userDataStart: 4, userDataEnd: 225,
+                configStart: 227, dynamicLockStart: 226
+            )
+        default:
+            UltralightMemoryMap(
+                totalPages: 16, userDataStart: 4, userDataEnd: 15,
+                configStart: nil, dynamicLockStart: nil
+            )
+        }
+    }
+}

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Scheme
+   LastUpgradeVersion = "2630"
+   version = "1.7">
+   <BuildAction
+      parallelizeBuildables = "YES"
+      buildImplicitDependencies = "YES"
+      buildArchitectures = "Automatic">
+      <PreActions>
+         <ExecutionAction
+            ActionType = "Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction">
+            <ActionContent
+               title = "Generate BuildInfo.swift"
+               scriptText = "COMMIT=$(git -C &quot;${PROJECT_DIR}&quot; rev-parse HEAD 2&gt;/dev/null || echo &quot;unknown&quot;)&#10;BUILD_TIME=$(date &quot;+%Y-%m-%d %H:%M:%S %z&quot;)&#10;OUTPUT_DIR=&quot;${PROJECT_DIR}/CENFC/DerivedSources&quot;&#10;OUTPUT_FILE=&quot;${OUTPUT_DIR}/BuildInfo.swift&quot;&#10;&#10;mkdir -p &quot;${OUTPUT_DIR}&quot;&#10;&#10;NEW_CONTENT=&quot;// Auto-generated &#x2014; do not edit&#10;import Foundation&#10;&#10;enum BuildInfo {&#10;    static let buildTime = \&quot;${BUILD_TIME}\&quot;&#10;    static let commitID = \&quot;${COMMIT}\&quot;&#10;}&quot;&#10;&#10;if [ -f &quot;${OUTPUT_FILE}&quot; ]; then&#10;    OLD_CONTENT=$(cat &quot;${OUTPUT_FILE}&quot;)&#10;    if [ &quot;${OLD_CONTENT}&quot; = &quot;${NEW_CONTENT}&quot; ]; then&#10;        exit 0&#10;    fi&#10;fi&#10;&#10;printf &apos;%s\n&apos; &quot;${NEW_CONTENT}&quot; &gt; &quot;${OUTPUT_FILE}&quot;&#10;">
+               <EnvironmentBuildable>
+                  <BuildableReference
+                     BuildableIdentifier = "primary"
+                     BlueprintIdentifier = "501BBCFF2F5D768E00C52667"
+                     BuildableName = "CENFC.app"
+                     BlueprintName = "CENFC"
+                     ReferencedContainer = "container:CENFC.xcodeproj">
+                  </BuildableReference>
+               </EnvironmentBuildable>
+            </ActionContent>
+         </ExecutionAction>
+      </PreActions>
+      <BuildActionEntries>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "501BBCFF2F5D768E00C52667"
+               BuildableName = "CENFC.app"
+               BlueprintName = "CENFC"
+               ReferencedContainer = "container:CENFC.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+      </BuildActionEntries>
+   </BuildAction>
+   <TestAction
+      buildConfiguration = "Debug"
+      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
+      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
+      shouldUseLaunchSchemeArgsEnv = "YES"
+      shouldAutocreateTestPlan = "YES">
+      <Testables>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "50AA00012F70000100AA0001"
+               BuildableName = "CENFCTests.xctest"
+               BlueprintName = "CENFCTests"
+               ReferencedContainer = "container:CENFC.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+      </Testables>
+   </TestAction>
+   <LaunchAction
+      buildConfiguration = "Debug"
+      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
+      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
+      launchStyle = "0"
+      useCustomWorkingDirectory = "NO"
+      ignoresPersistentStateOnLaunch = "NO"
+      debugDocumentVersioning = "YES"
+      debugServiceExtension = "internal"
+      allowLocationSimulation = "YES">
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "501BBCFF2F5D768E00C52667"
+            BuildableName = "CENFC.app"
+            BlueprintName = "CENFC"
+            ReferencedContainer = "container:CENFC.xcodeproj">
+         </BuildableReference>
+      </BuildableProductRunnable>
+   </LaunchAction>
+   <ProfileAction
+      buildConfiguration = "Release"
+      shouldUseLaunchSchemeArgsEnv = "YES"
+      savedToolIdentifier = ""
+      useCustomWorkingDirectory = "NO"
+      debugDocumentVersioning = "YES">
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "501BBCFF2F5D768E00C52667"
+            BuildableName = "CENFC.app"
+            BlueprintName = "CENFC"
+            ReferencedContainer = "container:CENFC.xcodeproj">
+         </BuildableReference>
+      </BuildableProductRunnable>
+   </ProfileAction>
+   <AnalyzeAction
+      buildConfiguration = "Debug">
+   </AnalyzeAction>
+   <ArchiveAction
+      buildConfiguration = "Release"
+      revealArchiveInOrganizer = "YES">
+   </ArchiveAction>
+</Scheme>

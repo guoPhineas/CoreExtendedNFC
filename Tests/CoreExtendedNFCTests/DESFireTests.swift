@@ -1,0 +1,576 @@
+// MIFARE DESFire command test suite.
+//
+// Public provenance for byte-level assertions in this file:
+// - NXP AN11004, "MIFARE DESFire as Type 4 Tag", section 5.1, shows the
+//   wrapped native-command APDU layout `90 xx 00 00 Lc Data 00` and the
+//   `0xAF` additional-frame exchange in ISO 7816-4 mode.
+//   https://www.nxp.com/docs/en/application-note/AN11004.pdf
+// - NXP AN12343, "MIFARE DESFire Light Features and Hints", section 10.1,
+//   documents the AuthenticateEV2First transcript shape, the returned
+//   `TI || RndA' || PCDcap2 || PDcap2` plaintext, and SV1/SV2 session-key
+//   derivation for `SesAuthENCKey` / `SesAuthMACKey`.
+//   https://www.nxp.com/docs/en/application-note/AN12343.pdf
+//
+// Public NXP material does not publish the full legacy EV1 AuthenticateISO
+// 2K3DES byte transcript with session-key concatenation. Those tests therefore
+// lock the interoperable wrapped-mode behavior we implement, while the EV2
+// session-key path is anchored to public NXP documentation above.
+@testable import CoreExtendedNFC
+import Foundation
+import Testing
+
+struct DESFireTests {
+    // MARK: - Command Wrapping
+
+    @Test("DESFire command wrapping format")
+    func commandWrapping() {
+        let apdu = CommandAPDU.desfireWrap(command: 0x6A)
+        #expect(apdu.cla == 0x90)
+        #expect(apdu.ins == 0x6A)
+        #expect(apdu.p1 == 0x00)
+        #expect(apdu.p2 == 0x00)
+        #expect(apdu.le == 0x00)
+    }
+
+    @Test("DESFire command wrapping with data")
+    func commandWrappingWithData() {
+        let apdu = CommandAPDU.desfireWrap(command: 0x5A, data: Data([0x01, 0x00, 0x00]))
+        let bytes = apdu.bytes
+        #expect(bytes == Data([0x90, 0x5A, 0x00, 0x00, 0x03, 0x01, 0x00, 0x00, 0x00]))
+    }
+
+    @Test("Additional Frame wrapping")
+    func additionalFrame() {
+        let apdu = CommandAPDU.desfireWrap(command: DESFireCommands.ADDITIONAL_FRAME)
+        #expect(apdu.ins == 0xAF)
+        #expect(apdu.bytes == Data([0x90, 0xAF, 0x00, 0x00, 0x00]))
+    }
+
+    // MARK: - Chaining
+
+    @Test("Single-frame response")
+    func singleFrame() async throws {
+        let mock = MockTransport()
+        mock.apduResponses = [
+            ResponseAPDU(data: Data([0x01, 0x02, 0x03]), sw1: 0x91, sw2: 0x00),
+        ]
+        let commands = DESFireCommands(transport: mock)
+        let result = try await commands.sendCommand(0x6A)
+        #expect(result == Data([0x01, 0x02, 0x03]))
+    }
+
+    @Test("Multi-frame AF chaining collects all data")
+    func multiFrame() async throws {
+        let mock = MockTransport()
+        mock.apduResponses = [
+            ResponseAPDU(data: Data([0x01, 0x02]), sw1: 0x91, sw2: 0xAF),
+            ResponseAPDU(data: Data([0x03, 0x04]), sw1: 0x91, sw2: 0xAF),
+            ResponseAPDU(data: Data([0x05]), sw1: 0x91, sw2: 0x00),
+        ]
+        let commands = DESFireCommands(transport: mock)
+        let result = try await commands.sendCommand(0x60)
+        #expect(result == Data([0x01, 0x02, 0x03, 0x04, 0x05]))
+        // Should have sent initial + 2 AF frames
+        #expect(mock.sentAPDUs.count == 3)
+        #expect(mock.sentAPDUs[1].ins == 0xAF)
+        #expect(mock.sentAPDUs[2].ins == 0xAF)
+    }
+
+    @Test("Error status throws desfireError")
+    func errorStatus() async {
+        let mock = MockTransport()
+        mock.apduResponses = [
+            ResponseAPDU(data: Data(), sw1: 0x91, sw2: 0x9D), // Permission denied
+        ]
+        let commands = DESFireCommands(transport: mock)
+
+        do {
+            _ = try await commands.sendCommand(0x6A)
+            #expect(Bool(false), "Should have thrown")
+        } catch let error as NFCError {
+            if case let .desfireError(status) = error {
+                #expect(status == .permissionDenied)
+            } else {
+                #expect(Bool(false), "Wrong error type: \(error)")
+            }
+        } catch {
+            #expect(Bool(false), "Unexpected error: \(error)")
+        }
+    }
+
+    // MARK: - Status Codes
+
+    @Test("DESFire status descriptions")
+    func statusDescriptions() {
+        #expect(DESFireStatus.operationOK.description == "Operation OK")
+        #expect(DESFireStatus.permissionDenied.description == "Permission denied")
+        #expect(DESFireStatus.authenticationError.description == "Authentication error")
+        #expect(DESFireStatus.fileNotFound.description == "File not found")
+    }
+
+    @Test("DESFire status raw values")
+    func statusRawValues() {
+        #expect(DESFireStatus.operationOK.rawValue == 0x00)
+        #expect(DESFireStatus.additionalFrame.rawValue == 0xAF)
+        #expect(DESFireStatus.permissionDenied.rawValue == 0x9D)
+    }
+
+    // MARK: - Version Info
+
+    @Test("Parse DESFire version info")
+    func parseVersion() throws {
+        var data = Data(repeating: 0x00, count: 28)
+        data[0] = 0x04 // HW vendor NXP
+        data[3] = 0x01 // HW major version 1 = EV1
+        let info = try DESFireVersionInfo(data: data)
+        #expect(info.hardwareVendorID == 0x04)
+        #expect(info.cardType == .mifareDesfireEV1)
+    }
+
+    @Test("DESFire EV2 detection")
+    func ev2Detection() throws {
+        var data = Data(repeating: 0x00, count: 28)
+        data[3] = 0x02 // HW major version 2 = EV2
+        let info = try DESFireVersionInfo(data: data)
+        #expect(info.cardType == .mifareDesfireEV2)
+    }
+
+    // MARK: - File Settings
+
+    @Test("Parse standard data file settings")
+    func parseStandardFileSettings() throws {
+        // File type=0x00, comm=0x00, access=0x0000, size=0x000020 (32 bytes)
+        let data = Data([0x00, 0x00, 0x00, 0x00, 0x20, 0x00, 0x00])
+        let settings = try DESFireFileSettings(data: data)
+        #expect(settings.fileType == .standardData)
+        #expect(settings.fileSize == 32)
+    }
+
+    // MARK: - Application Operations
+
+    @Test("SELECT_APPLICATION sends 3-byte AID")
+    func selectApp() async throws {
+        let mock = MockTransport()
+        mock.apduResponses = [
+            ResponseAPDU(data: Data(), sw1: 0x91, sw2: 0x00),
+        ]
+        let commands = DESFireCommands(transport: mock)
+        try await commands.selectApplication(Data([0x01, 0x00, 0x00]))
+        #expect(mock.sentAPDUs[0].ins == 0x5A)
+    }
+
+    @Test("GET_APPLICATION_IDS parses 3-byte AIDs")
+    func getAppIDs() async throws {
+        let mock = MockTransport()
+        mock.apduResponses = [
+            ResponseAPDU(data: Data([0x01, 0x00, 0x00, 0x02, 0x00, 0x00]), sw1: 0x91, sw2: 0x00),
+        ]
+        let commands = DESFireCommands(transport: mock)
+        let aids = try await commands.getApplicationIDs()
+        #expect(aids.count == 2)
+        #expect(aids[0] == Data([0x01, 0x00, 0x00]))
+        #expect(aids[1] == Data([0x02, 0x00, 0x00]))
+    }
+
+    // MARK: - Authentication
+
+    @Test("AuthenticateISO establishes a 2K3DES session")
+    func authenticateISO() async throws {
+        // Wrapped native mode and AF chaining are public in AN11004 section 5.1.
+        // The legacy 2K3DES session-key splice used here is regression-locked for
+        // interoperability because NXP's public DESFire notes do not expose the
+        // full EV1 AuthenticateISO transcript byte-for-byte.
+        let key = try #require(Data(hexString: "00112233445566778899AABBCCDDEEFF"))
+        let rndA = try #require(Data(hexString: "0102030405060708"))
+        let rndB = try #require(Data(hexString: "1122334455667788"))
+
+        let encryptedRndB = try CryptoUtils.tripleDESEncrypt(key: key, message: rndB)
+        let challengeCiphertext = try CryptoUtils.tripleDESEncrypt(
+            key: key,
+            message: Self.concat(rndA, Self.rotateLeft(rndB)),
+            iv: encryptedRndB
+        )
+        let finalCiphertext = try CryptoUtils.tripleDESEncrypt(
+            key: key,
+            message: Self.rotateLeft(rndA),
+            iv: Data(challengeCiphertext.suffix(8))
+        )
+
+        let mock = MockTransport()
+        mock.apduResponses = [
+            ResponseAPDU(data: encryptedRndB, sw1: 0x91, sw2: 0xAF),
+            ResponseAPDU(data: finalCiphertext, sw1: 0x91, sw2: 0x00),
+        ]
+
+        let commands = DESFireCommands(transport: mock)
+        let session = try await commands.authenticateISO(keyNo: 0x02, key: key, rndA: rndA)
+
+        #expect(session.scheme == .authenticateISO)
+        #expect(session.keyNumber == 0x02)
+        #expect(
+            session.sessionENCKey
+                == Data([0x01, 0x02, 0x03, 0x04, 0x11, 0x22, 0x33, 0x44, 0x05, 0x06, 0x07, 0x08, 0x55, 0x66, 0x77, 0x88])
+        )
+        #expect(session.sessionENCKey == session.sessionMACKey)
+        #expect(mock.sentAPDUs.map(\.ins) == [0x1A, 0xAF])
+        #expect(mock.sentAPDUs[0].data == Data([0x02]))
+        #expect(mock.sentAPDUs[1].data == challengeCiphertext)
+    }
+
+    @Test("AuthenticateEV2First derives AES session keys and TI")
+    func authenticateEV2First() async throws {
+        // AN12343 section 10.1 describes the public EV2 flow:
+        // 1. `0x71` starts authentication and the PICC returns `E(Kx, RndB) || PDcap2`.
+        // 2. The PCD answers with `E(Kx, RndA || RndB' || PCDcap2)`.
+        // 3. The final plaintext is `TI || RndA' || PCDcap2 || PDcap2`.
+        // 4. `SesAuthENCKey` and `SesAuthMACKey` are derived from SV1 / SV2.
+        let key = try #require(Data(hexString: "000102030405060708090A0B0C0D0E0F"))
+        let rndA = try #require(Data(hexString: "00112233445566778899AABBCCDDEEFF"))
+        let rndB = try #require(Data(hexString: "102132435465768798A9BACBDCEDFE0F"))
+        let ti = try #require(Data(hexString: "A1B2C3D4"))
+        let pcdCapabilities = try #require(Data(hexString: "010203040506"))
+        let piccCapabilities = try #require(Data(hexString: "0A0B0C0D0E0F"))
+
+        let encryptedRndB = try CryptoUtils.aesEncrypt(
+            key: key,
+            message: rndB,
+            iv: Data(count: 16)
+        )
+        let challengeCiphertext = try CryptoUtils.aesEncrypt(
+            key: key,
+            message: Self.concat(rndA, Self.rotateLeft(rndB)),
+            iv: encryptedRndB
+        )
+        let responsePlaintext = Self.concat(ti, Self.rotateLeft(rndA), pcdCapabilities, piccCapabilities)
+        let responseCiphertext = try CryptoUtils.aesEncrypt(
+            key: key,
+            message: responsePlaintext,
+            iv: Data(challengeCiphertext.suffix(16))
+        )
+        let expectedKeys = try DESFireCommands.deriveEV2SessionKeys(staticKey: key, rndA: rndA, rndB: rndB)
+
+        let mock = MockTransport()
+        mock.apduResponses = [
+            ResponseAPDU(data: Self.concat(encryptedRndB, piccCapabilities), sw1: 0x91, sw2: 0xAF),
+            ResponseAPDU(data: responseCiphertext, sw1: 0x91, sw2: 0x00),
+        ]
+
+        let commands = DESFireCommands(transport: mock)
+        let session = try await commands.authenticateEV2First(
+            keyNo: 0x00,
+            key: key,
+            pcdCapabilities: pcdCapabilities,
+            rndA: rndA
+        )
+
+        #expect(session.scheme == .authenticateEV2First)
+        #expect(session.keyNumber == 0x00)
+        #expect(session.transactionIdentifier == ti)
+        #expect(session.pcdCapabilities == pcdCapabilities)
+        #expect(session.piccCapabilities == piccCapabilities)
+        #expect(session.sessionENCKey == expectedKeys.sessionENCKey)
+        #expect(session.sessionMACKey == expectedKeys.sessionMACKey)
+        #expect(mock.sentAPDUs.map(\.ins) == [0x71, 0xAF])
+        #expect(mock.sentAPDUs[0].data == Data([0x00, 0x00]))
+        #expect(mock.sentAPDUs[1].data == challengeCiphertext)
+    }
+
+    @Test("Authenticated EV2 read performs auth before READ_DATA")
+    func authenticatedReadEV2() async throws {
+        // The ordering assertion here is intentional: authenticate first, then
+        // issue the plain-communication file command. That keeps UIKit truthful
+        // about current support: authenticated bootstrap, plain read only.
+        let key = try #require(Data(hexString: "000102030405060708090A0B0C0D0E0F"))
+        let rndA = try #require(Data(hexString: "00112233445566778899AABBCCDDEEFF"))
+        let rndB = try #require(Data(hexString: "102132435465768798A9BACBDCEDFE0F"))
+        let ti = try #require(Data(hexString: "A1B2C3D4"))
+        let pcdCapabilities = try #require(Data(hexString: "010203040506"))
+        let piccCapabilities = try #require(Data(hexString: "0A0B0C0D0E0F"))
+        let filePayload = try #require(Data(hexString: "DEADBEEF"))
+
+        let encryptedRndB = try CryptoUtils.aesEncrypt(
+            key: key,
+            message: rndB,
+            iv: Data(count: 16)
+        )
+        let challengeCiphertext = try CryptoUtils.aesEncrypt(
+            key: key,
+            message: Self.concat(rndA, Self.rotateLeft(rndB)),
+            iv: encryptedRndB
+        )
+        let responseCiphertext = try CryptoUtils.aesEncrypt(
+            key: key,
+            message: Self.concat(ti, Self.rotateLeft(rndA), pcdCapabilities, piccCapabilities),
+            iv: Data(challengeCiphertext.suffix(16))
+        )
+
+        let mock = MockTransport()
+        mock.apduResponses = [
+            ResponseAPDU(data: Self.concat(encryptedRndB, piccCapabilities), sw1: 0x91, sw2: 0xAF),
+            ResponseAPDU(data: responseCiphertext, sw1: 0x91, sw2: 0x00),
+            ResponseAPDU(data: filePayload, sw1: 0x91, sw2: 0x00),
+        ]
+
+        let commands = DESFireCommands(transport: mock)
+        let result = try await commands.readDataAuthenticatedEV2(
+            fileID: 0x03,
+            keyNo: 0x00,
+            key: key,
+            offset: 0x000102,
+            length: 0x000004,
+            pcdCapabilities: pcdCapabilities,
+            rndA: rndA
+        )
+
+        #expect(result.session.transactionIdentifier == ti)
+        #expect(result.data == filePayload)
+        #expect(mock.sentAPDUs.map(\.ins) == [0x71, 0xAF, 0xBD])
+        #expect(
+            mock.sentAPDUs[2].data
+                == Data([0x03, 0x02, 0x01, 0x00, 0x04, 0x00, 0x00])
+        )
+    }
+
+    @Test("Authenticated EV2 record read performs auth before READ_RECORDS")
+    func authenticatedRecordsEV2() async throws {
+        // This mirrors the EV2-first transcript from AN12343 section 10.1, then
+        // locks the wrapped `READ_RECORDS (0xBB)` request layout we expose as a
+        // safe read-only follow-up after authentication.
+        let key = try #require(Data(hexString: "000102030405060708090A0B0C0D0E0F"))
+        let rndA = try #require(Data(hexString: "00112233445566778899AABBCCDDEEFF"))
+        let rndB = try #require(Data(hexString: "102132435465768798A9BACBDCEDFE0F"))
+        let ti = try #require(Data(hexString: "A1B2C3D4"))
+        let pcdCapabilities = try #require(Data(hexString: "010203040506"))
+        let piccCapabilities = try #require(Data(hexString: "0A0B0C0D0E0F"))
+        let recordPayload = try #require(Data(hexString: "10203040"))
+
+        let encryptedRndB = try CryptoUtils.aesEncrypt(
+            key: key,
+            message: rndB,
+            iv: Data(count: 16)
+        )
+        let challengeCiphertext = try CryptoUtils.aesEncrypt(
+            key: key,
+            message: Self.concat(rndA, Self.rotateLeft(rndB)),
+            iv: encryptedRndB
+        )
+        let responseCiphertext = try CryptoUtils.aesEncrypt(
+            key: key,
+            message: Self.concat(ti, Self.rotateLeft(rndA), pcdCapabilities, piccCapabilities),
+            iv: Data(challengeCiphertext.suffix(16))
+        )
+
+        let mock = MockTransport()
+        mock.apduResponses = [
+            ResponseAPDU(data: Self.concat(encryptedRndB, piccCapabilities), sw1: 0x91, sw2: 0xAF),
+            ResponseAPDU(data: responseCiphertext, sw1: 0x91, sw2: 0x00),
+            ResponseAPDU(data: recordPayload, sw1: 0x91, sw2: 0x00),
+        ]
+
+        let commands = DESFireCommands(transport: mock)
+        let result = try await commands.readRecordsAuthenticatedEV2(
+            fileID: 0x07,
+            keyNo: 0x00,
+            key: key,
+            offset: 0x000002,
+            count: 0x000001,
+            pcdCapabilities: pcdCapabilities,
+            rndA: rndA
+        )
+
+        #expect(result.session.transactionIdentifier == ti)
+        #expect(result.data == recordPayload)
+        #expect(mock.sentAPDUs.map(\.ins) == [0x71, 0xAF, 0xBB])
+        #expect(mock.sentAPDUs[2].data == Data([0x07, 0x02, 0x00, 0x00, 0x01, 0x00, 0x00]))
+    }
+
+    @Test("Authenticated ISO read performs auth before READ_DATA")
+    func authenticatedReadISO() async throws {
+        // `0xBD` is the wrapped READ_DATA instruction used after the legacy ISO
+        // mutual-auth handshake has completed. This test keeps the call order and
+        // 3-byte offset / length encoding fixed so a single-byte regression fails fast.
+        let key = try #require(Data(hexString: "00112233445566778899AABBCCDDEEFF"))
+        let rndA = try #require(Data(hexString: "0102030405060708"))
+        let rndB = try #require(Data(hexString: "1122334455667788"))
+        let filePayload = try #require(Data(hexString: "CAFEF00D"))
+
+        let encryptedRndB = try CryptoUtils.tripleDESEncrypt(key: key, message: rndB)
+        let challengeCiphertext = try CryptoUtils.tripleDESEncrypt(
+            key: key,
+            message: Self.concat(rndA, Self.rotateLeft(rndB)),
+            iv: encryptedRndB
+        )
+        let finalCiphertext = try CryptoUtils.tripleDESEncrypt(
+            key: key,
+            message: Self.rotateLeft(rndA),
+            iv: Data(challengeCiphertext.suffix(8))
+        )
+
+        let mock = MockTransport()
+        mock.apduResponses = [
+            ResponseAPDU(data: encryptedRndB, sw1: 0x91, sw2: 0xAF),
+            ResponseAPDU(data: finalCiphertext, sw1: 0x91, sw2: 0x00),
+            ResponseAPDU(data: filePayload, sw1: 0x91, sw2: 0x00),
+        ]
+
+        let commands = DESFireCommands(transport: mock)
+        let result = try await commands.readDataAuthenticatedISO(
+            fileID: 0x04,
+            keyNo: 0x02,
+            key: key,
+            offset: 0x000000,
+            length: 0x000004,
+            rndA: rndA
+        )
+
+        #expect(result.session.scheme == .authenticateISO)
+        #expect(result.data == filePayload)
+        #expect(mock.sentAPDUs.map(\.ins) == [0x1A, 0xAF, 0xBD])
+        #expect(mock.sentAPDUs[2].data == Data([0x04, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00]))
+    }
+
+    @Test("Authenticated ISO record read performs auth before READ_RECORDS")
+    func authenticatedRecordsISO() async throws {
+        let key = try #require(Data(hexString: "00112233445566778899AABBCCDDEEFF"))
+        let rndA = try #require(Data(hexString: "0102030405060708"))
+        let rndB = try #require(Data(hexString: "1122334455667788"))
+        let recordPayload = try #require(Data(hexString: "010203040506"))
+
+        let encryptedRndB = try CryptoUtils.tripleDESEncrypt(key: key, message: rndB)
+        let challengeCiphertext = try CryptoUtils.tripleDESEncrypt(
+            key: key,
+            message: Self.concat(rndA, Self.rotateLeft(rndB)),
+            iv: encryptedRndB
+        )
+        let finalCiphertext = try CryptoUtils.tripleDESEncrypt(
+            key: key,
+            message: Self.rotateLeft(rndA),
+            iv: Data(challengeCiphertext.suffix(8))
+        )
+
+        let mock = MockTransport()
+        mock.apduResponses = [
+            ResponseAPDU(data: encryptedRndB, sw1: 0x91, sw2: 0xAF),
+            ResponseAPDU(data: finalCiphertext, sw1: 0x91, sw2: 0x00),
+            ResponseAPDU(data: recordPayload, sw1: 0x91, sw2: 0x00),
+        ]
+
+        let commands = DESFireCommands(transport: mock)
+        let result = try await commands.readRecordsAuthenticatedISO(
+            fileID: 0x06,
+            keyNo: 0x02,
+            key: key,
+            offset: 0x000001,
+            count: 0x000002,
+            rndA: rndA
+        )
+
+        #expect(result.session.scheme == .authenticateISO)
+        #expect(result.data == recordPayload)
+        #expect(mock.sentAPDUs.map(\.ins) == [0x1A, 0xAF, 0xBB])
+        #expect(mock.sentAPDUs[2].data == Data([0x06, 0x01, 0x00, 0x00, 0x02, 0x00, 0x00]))
+    }
+
+    @Test("Authenticated ISO value read performs auth before GET_VALUE")
+    func authenticatedValueISO() async throws {
+        // `0x6C` is the wrapped GET_VALUE instruction. This remains read-only on
+        // purpose; we are not exposing authenticated write/admin flows yet.
+        let key = try #require(Data(hexString: "00112233445566778899AABBCCDDEEFF"))
+        let rndA = try #require(Data(hexString: "0102030405060708"))
+        let rndB = try #require(Data(hexString: "1122334455667788"))
+        let valueBytes = Data([0x78, 0x56, 0x34, 0x12])
+
+        let encryptedRndB = try CryptoUtils.tripleDESEncrypt(key: key, message: rndB)
+        let challengeCiphertext = try CryptoUtils.tripleDESEncrypt(
+            key: key,
+            message: Self.concat(rndA, Self.rotateLeft(rndB)),
+            iv: encryptedRndB
+        )
+        let finalCiphertext = try CryptoUtils.tripleDESEncrypt(
+            key: key,
+            message: Self.rotateLeft(rndA),
+            iv: Data(challengeCiphertext.suffix(8))
+        )
+
+        let mock = MockTransport()
+        mock.apduResponses = [
+            ResponseAPDU(data: encryptedRndB, sw1: 0x91, sw2: 0xAF),
+            ResponseAPDU(data: finalCiphertext, sw1: 0x91, sw2: 0x00),
+            ResponseAPDU(data: valueBytes, sw1: 0x91, sw2: 0x00),
+        ]
+
+        let commands = DESFireCommands(transport: mock)
+        let result = try await commands.getValueAuthenticatedISO(
+            fileID: 0x05,
+            keyNo: 0x02,
+            key: key,
+            rndA: rndA
+        )
+
+        #expect(result.session.scheme == .authenticateISO)
+        #expect(result.value == 0x1234_5678)
+        #expect(mock.sentAPDUs.map(\.ins) == [0x1A, 0xAF, 0x6C])
+        #expect(mock.sentAPDUs[2].data == Data([0x05]))
+    }
+
+    @Test("Authenticated EV2 value read performs auth before GET_VALUE")
+    func authenticatedValueEV2() async throws {
+        // Like the other EV2 tests, this anchors the auth transcript to AN12343
+        // and regression-locks the follow-up wrapped `GET_VALUE (0x6C)` request.
+        let key = try #require(Data(hexString: "000102030405060708090A0B0C0D0E0F"))
+        let rndA = try #require(Data(hexString: "00112233445566778899AABBCCDDEEFF"))
+        let rndB = try #require(Data(hexString: "102132435465768798A9BACBDCEDFE0F"))
+        let ti = try #require(Data(hexString: "A1B2C3D4"))
+        let pcdCapabilities = try #require(Data(hexString: "010203040506"))
+        let piccCapabilities = try #require(Data(hexString: "0A0B0C0D0E0F"))
+        let valueBytes = Data([0xEF, 0xCD, 0xAB, 0x89])
+
+        let encryptedRndB = try CryptoUtils.aesEncrypt(
+            key: key,
+            message: rndB,
+            iv: Data(count: 16)
+        )
+        let challengeCiphertext = try CryptoUtils.aesEncrypt(
+            key: key,
+            message: Self.concat(rndA, Self.rotateLeft(rndB)),
+            iv: encryptedRndB
+        )
+        let responseCiphertext = try CryptoUtils.aesEncrypt(
+            key: key,
+            message: Self.concat(ti, Self.rotateLeft(rndA), pcdCapabilities, piccCapabilities),
+            iv: Data(challengeCiphertext.suffix(16))
+        )
+
+        let mock = MockTransport()
+        mock.apduResponses = [
+            ResponseAPDU(data: Self.concat(encryptedRndB, piccCapabilities), sw1: 0x91, sw2: 0xAF),
+            ResponseAPDU(data: responseCiphertext, sw1: 0x91, sw2: 0x00),
+            ResponseAPDU(data: valueBytes, sw1: 0x91, sw2: 0x00),
+        ]
+
+        let commands = DESFireCommands(transport: mock)
+        let result = try await commands.getValueAuthenticatedEV2(
+            fileID: 0x08,
+            keyNo: 0x00,
+            key: key,
+            pcdCapabilities: pcdCapabilities,
+            rndA: rndA
+        )
+
+        #expect(result.session.transactionIdentifier == ti)
+        #expect(result.value == -1_985_229_329)
+        #expect(mock.sentAPDUs.map(\.ins) == [0x71, 0xAF, 0x6C])
+        #expect(mock.sentAPDUs[2].data == Data([0x08]))
+    }
+
+    private static func rotateLeft(_ data: Data) -> Data {
+        guard let first = data.first else { return Data() }
+        return concat(Data(data.dropFirst()), Data([first]))
+    }
+
+    private static func concat(_ parts: Data...) -> Data {
+        parts.reduce(into: Data()) { result, part in
+            result.append(part)
+        }
+    }
+}

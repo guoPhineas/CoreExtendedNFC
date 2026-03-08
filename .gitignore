@@ -1,0 +1,53 @@
+# General
+._*
+.AppleDB
+.AppleDesktop
+.AppleDouble
+.DS_Store
+.LSOverride
+.apdisk
+.com.apple.timemachine.donotpresent
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+Icon[
+]
+Network Trash Folder
+Temporary Items
+__MACOSX/
+
+# Xcode
+*.dSYM
+*.dSYM.zip
+*.hmap
+*.ipa
+DerivedData/
+xcuserdata/
+
+# Xcode Playgrounds
+playground.xcworkspace
+timeline.xctimeline
+
+# Swift Package Manager
+.build/
+.swiftpm/xcode/
+
+# Carthage
+Carthage/Build/
+
+# fastlane
+fastlane/Preview.html
+fastlane/report.xml
+fastlane/screenshots/**/*.png
+fastlane/test_output
+
+# Project-specific
+.netrc
+/Packages
+References/
+Example/CENFC/Configuration/*Developer*.xcconfig
+Example/CENFC/DerivedSources/*
+!Example/CENFC/DerivedSources/DerivedSourcesReadme.swift
