@@ -10,9 +10,9 @@ Identify cards, read/write memory, dump tags, read eMRTD passports — async/awa
 
 ## Why This Exists
 
-CoreNFC gives you a pipe to the tag. It discovers tags, sends bytes, receives bytes. That's it.
+CoreNFC gives you the transport layer: session management, tag discovery, NDEF support, and raw tag-specific commands such as ISO 7816 APDUs, MiFare commands, FeliCa commands, and ISO 15693 block/custom commands.
 
-It doesn't know what an Ultralight page layout looks like, how to chain DESFire Additional Frames, how to negotiate BAC with a passport chip, or how to parse an NDEF message out of a Type 4 CC structure.
+What it does not provide is a built-in high-level protocol library. It doesn't know what an Ultralight page layout looks like, how to chain DESFire Additional Frames, how to negotiate BAC with a passport chip, or how to export a dump in Flipper or Proxmark3 formats.
 
 This library does.
 
@@ -32,14 +32,16 @@ This library does.
 | --------------------------------- | :-----: | :-------------: |
 | Tag discovery & session           |   yes   |       yes       |
 | Raw APDU send/receive             |   yes   |       yes       |
-| Card identification               |         |       yes       |
-| Memory read/write/dump            |         |       yes       |
-| DESFire app/file operations       |         |       yes       |
-| NDEF read/write (Type 3 & 4)      |         |       yes       |
-| Passport reading & authentication |         |       yes       |
-| Crypto (AES-CMAC, 3DES, MAC)      |         |       yes       |
-| Export (Flipper, Proxmark3, JSON) |         |       yes       |
-| Mock transport for testing        |         |       yes       |
+| Card identification               | partial |       yes       |
+| Memory read/write/dump            | partial |       yes       |
+| DESFire app/file operations       | no built-in high-level API | yes |
+| NDEF read/write (Type 3 & 4)      |   yes   |       yes       |
+| Passport reading & authentication | possible, not built-in | yes |
+| Crypto (AES-CMAC, 3DES, MAC)      | no built-in |      yes      |
+| Export (Flipper, Proxmark3, JSON) | no built-in |      yes      |
+| Mock transport for testing        | no built-in |      yes      |
+
+`partial` means CoreNFC exposes low-level or tag-specific primitives, but not a unified high-level abstraction for identification, dump orchestration, or family-specific memory models.
 
 ## Supported Cards
 
