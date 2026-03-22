@@ -61,7 +61,8 @@ enum DG2Parser {
     /// Extract actual image bytes from biometric data.
     ///
     /// The biometric data begins with an ISO 19794-5 facial record header.
-    /// We scan for JPEG (0xFFD8) or JPEG2000 (0x0000000C) signatures.
+    /// We scan for JPEG (0xFFD8), JP2 boxed JPEG2000 (0x0000000C), or
+    /// a raw JPEG2000 codestream (0xFF4FFF51).
     private static func extractImage(from data: Data) -> Data {
         // Look for JPEG signature (FFD8)
         for i in 0 ..< data.count - 1 {
@@ -74,6 +75,15 @@ enum DG2Parser {
         if data.count > 4 {
             for i in 0 ..< data.count - 3 {
                 if data[i] == 0x00, data[i + 1] == 0x00, data[i + 2] == 0x00, data[i + 3] == 0x0C {
+                    return Data(data[i...])
+                }
+            }
+        }
+
+        // Look for raw JPEG2000 codestream markers SOC (FF4F) + SIZ (FF51)
+        if data.count > 4 {
+            for i in 0 ..< data.count - 3 {
+                if data[i] == 0xFF, data[i + 1] == 0x4F, data[i + 2] == 0xFF, data[i + 3] == 0x51 {
                     return Data(data[i...])
                 }
             }

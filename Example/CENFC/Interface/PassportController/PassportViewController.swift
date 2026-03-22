@@ -121,6 +121,7 @@ class PassportViewController: UIViewController {
         setupDataSource()
         setupNavBar()
         setupSearch()
+        reloadSnapshot(animatingDifferences: false)
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -265,11 +266,11 @@ class PassportViewController: UIViewController {
     // MARK: - Data Source
 
     func reloadSnapshot(animatingDifferences: Bool = true) {
-        guard isViewLoaded, view.window != nil, tableView.window != nil else {
+        guard isViewLoaded else {
             pendingSnapshotReload = true
             pendingSnapshotAnimated = pendingSnapshotAnimated || animatingDifferences
             AppLogStore.shared.debug(
-                "reloadSnapshot deferred animated=\(animatingDifferences) viewWindow=\(view.window != nil) tableWindow=\(tableView.window != nil)",
+                "reloadSnapshot deferred animated=\(animatingDifferences) viewLoaded=\(isViewLoaded)",
                 source: "PassportReorder"
             )
             return
@@ -291,7 +292,7 @@ class PassportViewController: UIViewController {
     }
 
     private func flushPendingSnapshotReloadIfNeeded() {
-        guard pendingSnapshotReload, view.window != nil, tableView.window != nil else { return }
+        guard pendingSnapshotReload, isViewLoaded else { return }
         let animated = pendingSnapshotAnimated
         pendingSnapshotReload = false
         pendingSnapshotAnimated = true

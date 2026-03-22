@@ -1,11 +1,28 @@
 import ConfigurableKit
 import CoreExtendedNFC
+import ImageIO
+import QuickLook
 import SnapKit
 import Then
 import UIKit
+import UniformTypeIdentifiers
 
 class PassportDetailViewController: StackScrollController {
+    private struct PreviewPayload {
+        let fileData: Data
+        let fileExtension: String
+        let sourceFormatName: String
+        let imageSize: CGSize
+        let hasRenderedPreview: Bool
+    }
+
     private let record: PassportRecord
+    private var previewURL: URL?
+    private var previewDirectoryURL: URL {
+        FileManager.default.temporaryDirectory
+            .appendingPathComponent("cenfc-passport-preview", isDirectory: true)
+            .appendingPathComponent(record.id.uuidString, isDirectory: true)
+    }
 
     private let dateFormatter = DateFormatter().then {
         $0.dateStyle = .medium
@@ -23,13 +40,19 @@ class PassportDetailViewController: StackScrollController {
         fatalError()
     }
 
+    deinit {
+        cleanupPreviewArtifacts()
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
+        cleanupPreviewArtifacts()
         setupDismissKeyboardOnTap()
         view.backgroundColor = .systemBackground
         navigationItem.largeTitleDisplayMode = .never
         enableExtendedEdge()
         setupExportButton()
+        logPreviewDiagnostics()
     }
 
     override func setupContentViews() {
@@ -73,19 +96,31 @@ class PassportDetailViewController: StackScrollController {
     // MARK: - Face Photo
 
     private func buildFaceSection() {
-        guard let faceData = record.passport.faceImageData, let image = UIImage(data: faceData) else { return }
+        guard let previewPayload = previewPayload(for: .dg2) else { return }
 
         addSectionHeader(String(localized: "Photo"))
 
-        let imageView = UIImageView(image: image).then {
-            $0.contentMode = .scaleAspectFit
-            $0.clipsToBounds = true
-            $0.layer.cornerRadius = 12
-            $0.layer.cornerCurve = .continuous
-            $0.backgroundColor = .secondarySystemBackground
+        if let image = decodedImage(for: .dg2) {
+            let imageView = UIImageView(image: image).then {
+                $0.contentMode = .scaleAspectFit
+                $0.clipsToBounds = true
+                $0.layer.cornerRadius = 12
+                $0.layer.cornerCurve = .continuous
+                $0.backgroundColor = .secondarySystemBackground
+            }
+            imageView.snp.makeConstraints { $0.height.equalTo(180) }
+            stackView.addArrangedSubviewWithMargin(imageView) { $0.top = 8; $0.bottom = 8 }
+        } else {
+            addInfoRow(
+                icon: "photo",
+                title: String(localized: "Open Photo Preview"),
+                description: String(localized: "The portrait is available, but inline decoding is not supported on this device. Tap to open the extracted image preview."),
+                value: previewPayload.sourceFormatName,
+                tapAction: { [weak self] _ in
+                    self?.previewImage(previewPayload, name: DataGroupId.dg2.name)
+                }
+            )
         }
-        imageView.snp.makeConstraints { $0.height.equalTo(180) }
-        stackView.addArrangedSubviewWithMargin(imageView) { $0.top = 8; $0.bottom = 8 }
         stackView.addArrangedSubview(SeparatorView())
     }
 
@@ -224,15 +259,216 @@ class PassportDetailViewController: StackScrollController {
         for (dgId, data) in record.passport.rawDataGroups.sorted(by: {
             (dgOrder.firstIndex(of: $0.key) ?? 0) < (dgOrder.firstIndex(of: $1.key) ?? 0)
         }) {
+            let previewPayload = previewPayload(for: dgId)
+            let icon = previewPayload != nil ? "photo.fill" : "doc.zipper"
             addInfoRow(
-                icon: "doc.zipper",
+                icon: icon,
                 title: dgId.name,
                 description: String(localized: "Raw binary data for this data group."),
-                value: "\(data.count) bytes"
+                value: "\(data.count) bytes",
+                tapAction: previewPayload.map { payload in
+                    { [weak self] _ in self?.previewImage(payload, name: dgId.name) }
+                }
             )
         }
 
         addSectionFooter(String(localized: "Tap the share button to export the full passport record."))
+    }
+
+    private func previewPayload(for dgId: DataGroupId) -> PreviewPayload? {
+        let data: Data?
+        switch dgId {
+        case .dg2:
+            data = record.passport.resolvedFaceImageData
+        case .dg7:
+            data = record.passport.resolvedSignatureImageData
+        default:
+            return nil
+        }
+
+        guard let data else { return nil }
+
+        let formatName = inferPreviewFormat(for: data)
+        if let image = decodeImage(from: data),
+           let jpegData = image.jpegData(compressionQuality: 0.95)
+        {
+            return PreviewPayload(
+                fileData: jpegData,
+                fileExtension: "jpg",
+                sourceFormatName: formatName,
+                imageSize: image.size,
+                hasRenderedPreview: true
+            )
+        }
+
+        guard let nativeExtension = nativePreviewExtension(for: data) else { return nil }
+        return PreviewPayload(
+            fileData: data,
+            fileExtension: nativeExtension,
+            sourceFormatName: formatName,
+            imageSize: .zero,
+            hasRenderedPreview: false
+        )
+    }
+
+    private func previewImage(_ payload: PreviewPayload, name: String) {
+        let sanitizedName = name.replacingOccurrences(of: "/", with: "-")
+        let url = previewDirectoryURL.appendingPathComponent("\(sanitizedName).\(payload.fileExtension)")
+
+        AppLogStore.shared.debug(
+            "Opening \(name) preview sourceFormat=\(payload.sourceFormatName) output=\(payload.fileExtension) bytes=\(payload.fileData.count) rendered=\(payload.hasRenderedPreview) size=\(Int(payload.imageSize.width))x\(Int(payload.imageSize.height))",
+            source: "PassportDetail"
+        )
+        do {
+            cleanupPreviewArtifacts()
+            try FileManager.default.createDirectory(at: previewDirectoryURL, withIntermediateDirectories: true)
+            try payload.fileData.write(to: url)
+        } catch {
+            AppLogStore.shared.error(
+                "Failed to write preview file for \(name): \(error.localizedDescription)",
+                source: "PassportDetail"
+            )
+            return
+        }
+        let ql = QLPreviewController()
+        previewURL = url
+        ql.dataSource = self
+        ql.delegate = self
+        present(ql, animated: true)
+    }
+
+    private func cleanupPreviewArtifacts() {
+        previewURL = nil
+
+        guard FileManager.default.fileExists(atPath: previewDirectoryURL.path) else { return }
+
+        do {
+            try FileManager.default.removeItem(at: previewDirectoryURL)
+            AppLogStore.shared.debug(
+                "Cleaned preview artifacts at \(previewDirectoryURL.lastPathComponent)",
+                source: "PassportDetail"
+            )
+        } catch {
+            AppLogStore.shared.warning(
+                "Failed to clean preview artifacts: \(error.localizedDescription)",
+                source: "PassportDetail"
+            )
+        }
+    }
+
+    private func logPreviewDiagnostics() {
+        logPreviewDiagnostics(for: .dg2)
+        logPreviewDiagnostics(for: .dg7)
+    }
+
+    private func logPreviewDiagnostics(for dgId: DataGroupId) {
+        let rawBytes = record.passport.rawDataGroups[dgId]?.count ?? 0
+
+        guard let payload = previewPayload(for: dgId) else {
+            if rawBytes > 0 {
+                AppLogStore.shared.warning(
+                    "\(dgId.name) raw data exists (\(rawBytes) bytes) but no extracted preview payload is available",
+                    source: "PassportDetail"
+                )
+            }
+            return
+        }
+
+        AppLogStore.shared.debug(
+            "\(dgId.name) preview payload ready raw=\(rawBytes) output=\(payload.fileExtension) bytes=\(payload.fileData.count) rendered=\(payload.hasRenderedPreview) sourceFormat=\(payload.sourceFormatName) size=\(Int(payload.imageSize.width))x\(Int(payload.imageSize.height))",
+            source: "PassportDetail"
+        )
+    }
+
+    private func decodedImage(for dgId: DataGroupId) -> UIImage? {
+        let data: Data? = switch dgId {
+        case .dg2:
+            record.passport.resolvedFaceImageData
+        case .dg7:
+            record.passport.resolvedSignatureImageData
+        default:
+            nil
+        }
+
+        guard let data else { return nil }
+        return decodeImage(from: data)
+    }
+
+    private func decodeImage(from data: Data) -> UIImage? {
+        if let image = UIImage(data: data) {
+            return image
+        }
+
+        let sourceOptions = [
+            kCGImageSourceShouldCache: false,
+        ] as CFDictionary
+
+        if let source = CGImageSourceCreateWithData(data as CFData, sourceOptions),
+           let cgImage = CGImageSourceCreateImageAtIndex(source, 0, nil)
+        {
+            return UIImage(cgImage: cgImage)
+        }
+
+        let hintedTypes = [
+            "public.jpeg-2000",
+            UTType.jpeg.identifier,
+            UTType.png.identifier,
+        ]
+
+        for hintedType in hintedTypes {
+            let hintOptions = [
+                kCGImageSourceShouldCache: false,
+                kCGImageSourceTypeIdentifierHint: hintedType,
+            ] as CFDictionary
+
+            if let source = CGImageSourceCreateWithData(data as CFData, hintOptions),
+               let cgImage = CGImageSourceCreateImageAtIndex(source, 0, nil)
+            {
+                return UIImage(cgImage: cgImage)
+            }
+        }
+
+        return nil
+    }
+
+    private func inferPreviewFormat(for data: Data) -> String {
+        if data.starts(with: [0xFF, 0xD8, 0xFF]) {
+            return "JPEG"
+        }
+
+        if data.starts(with: [0x89, 0x50, 0x4E, 0x47]) {
+            return "PNG"
+        }
+
+        if data.starts(with: [0x00, 0x00, 0x00, 0x0C, 0x6A, 0x50, 0x20, 0x20]) {
+            return "JPEG2000"
+        }
+
+        if data.starts(with: [0xFF, 0x4F, 0xFF, 0x51]) {
+            return "JPEG2000 Codestream"
+        }
+
+        return "Unknown"
+    }
+
+    private func nativePreviewExtension(for data: Data) -> String? {
+        if data.starts(with: [0xFF, 0xD8, 0xFF]) {
+            return "jpg"
+        }
+
+        if data.starts(with: [0x89, 0x50, 0x4E, 0x47]) {
+            return "png"
+        }
+
+        if data.starts(with: [0x00, 0x00, 0x00, 0x0C, 0x6A, 0x50, 0x20, 0x20]) {
+            return "jp2"
+        }
+
+        if data.starts(with: [0xFF, 0x4F, 0xFF, 0x51]) {
+            return "j2c"
+        }
+
+        return nil
     }
 
     // MARK: - Footer
@@ -277,5 +513,21 @@ class PassportDetailViewController: StackScrollController {
         case "skipped", "notAdvertised", "notSupported": ("minus.circle", false)
         default: ("circle.dotted", false)
         }
+    }
+}
+
+// MARK: - QLPreviewControllerDataSource
+
+extension PassportDetailViewController: QLPreviewControllerDataSource, QLPreviewControllerDelegate {
+    func numberOfPreviewItems(in _: QLPreviewController) -> Int {
+        previewURL != nil ? 1 : 0
+    }
+
+    func previewController(_: QLPreviewController, previewItemAt _: Int) -> any QLPreviewItem {
+        (previewURL ?? URL(fileURLWithPath: "/")) as NSURL
+    }
+
+    func previewControllerDidDismiss(_: QLPreviewController) {
+        cleanupPreviewArtifacts()
     }
 }

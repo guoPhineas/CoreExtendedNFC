@@ -332,7 +332,7 @@ class ScannerViewController: ObjectListViewController<ScanStore>,
         for item in coordinator.items {
             item.dragItem.itemProvider.loadDataRepresentation(
                 forTypeIdentifier: UTType.cenfc.identifier
-            ) { [weak self] data, _ in
+            ) { data, _ in
                 guard let data else { return }
                 DispatchQueue.main.async {
                     guard let envelope = try? CardDocument.importEnvelope(from: data) else { return }
@@ -413,7 +413,7 @@ class ScannerViewController: ObjectListViewController<ScanStore>,
         for item in session.items {
             item.itemProvider.loadDataRepresentation(
                 forTypeIdentifier: UTType.cenfc.identifier
-            ) { [weak self] data, _ in
+            ) { data, _ in
                 guard let data else { return }
                 DispatchQueue.main.async {
                     guard let envelope = try? CardDocument.importEnvelope(from: data) else { return }

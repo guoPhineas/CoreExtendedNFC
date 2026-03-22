@@ -198,6 +198,46 @@ struct DataGroupParsingTests {
         }
     }
 
+    @Test("Parse DG2 extracts JPEG2000 codestream from ISO 19794-5 face record")
+    func parseDG2JPEG2000Codestream() throws {
+        // Simulate a facial record beginning with the `FAC\0` header, followed by
+        // an embedded JPEG2000 codestream (`FF4F FF51`).
+        let faceRecordHeader = Data([
+            0x46, 0x41, 0x43, 0x00, 0x30, 0x31, 0x30, 0x00,
+            0x00, 0x00, 0x50, 0x2E, 0x00, 0x01,
+        ])
+        let codestream = Data([0xFF, 0x4F, 0xFF, 0x51, 0x00, 0x2F]) + Data(repeating: 0xAA, count: 16)
+        let biometricContent = faceRecordHeader + codestream
+
+        var biometricNode = Data([0x5F, 0x2E])
+        biometricNode.append(contentsOf: ASN1Parser.encodeLength(biometricContent.count))
+        biometricNode.append(biometricContent)
+
+        let headerNode = Data([0xA1, 0x02, 0x00, 0x00])
+
+        var template60Content = headerNode
+        template60Content.append(biometricNode)
+        var template60 = Data([0x7F, 0x60])
+        template60.append(contentsOf: ASN1Parser.encodeLength(template60Content.count))
+        template60.append(template60Content)
+
+        let countNode = Data([0x02, 0x01, 0x01])
+
+        var template61Content = countNode
+        template61Content.append(template60)
+        var template61 = Data([0x7F, 0x61])
+        template61.append(contentsOf: ASN1Parser.encodeLength(template61Content.count))
+        template61.append(template61Content)
+
+        var dg2Data = Data([0x75])
+        dg2Data.append(contentsOf: ASN1Parser.encodeLength(template61.count))
+        dg2Data.append(template61)
+
+        let result = try DataGroupParser.parseDG2(dg2Data)
+        #expect(result.starts(with: [0xFF, 0x4F, 0xFF, 0x51]))
+        #expect(result == codestream)
+    }
+
     // MARK: - MRZ Parsing
 
     @Test("MRZ TD3 format (passport)")

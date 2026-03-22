@@ -410,13 +410,29 @@ public struct PassportReader: Sendable {
         // DG2 — Face Image
         var faceImageData: Data?
         if let dg2Data = rawDataGroups[.dg2] {
-            faceImageData = try? DataGroupParser.parseDG2(dg2Data)
+            do {
+                faceImageData = try DataGroupParser.parseDG2(dg2Data)
+                if let faceImageData {
+                    NFCLog.info("Parsed DG2 face image: \(faceImageData.count) bytes", source: "Passport")
+                }
+            } catch {
+                NFCLog.error("DG2 parse failed: \(error.localizedDescription)", source: "Passport")
+            }
         }
 
         // DG7 — Signature Image
         var signatureImageData: Data?
         if let dg7Data = rawDataGroups[.dg7] {
-            signatureImageData = try? DataGroupParser.parseDG7(dg7Data)
+            do {
+                signatureImageData = try DataGroupParser.parseDG7(dg7Data)
+                if let signatureImageData {
+                    NFCLog.info("Parsed DG7 signature image: \(signatureImageData.count) bytes", source: "Passport")
+                } else {
+                    NFCLog.info("DG7 present but did not contain an extractable signature image", source: "Passport")
+                }
+            } catch {
+                NFCLog.error("DG7 parse failed: \(error.localizedDescription)", source: "Passport")
+            }
         }
 
         // DG11 — Additional Personal Details

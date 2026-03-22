@@ -11,6 +11,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(
         _: UIApplication,
+        didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]? = nil
+    ) -> Bool {
+        AppBootstrap.preloadPersistentStores()
+        return true
+    }
+
+    func application(
+        _: UIApplication,
         configurationForConnecting connectingSceneSession: UISceneSession,
         options _: UIScene.ConnectionOptions
     ) -> UISceneConfiguration {
@@ -20,5 +28,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         )
         configuration.delegateClass = SceneDelegate.self
         return configuration
+    }
+}
+
+@MainActor
+private enum AppBootstrap {
+    static func preloadPersistentStores() {
+        _ = ScanStore.shared
+        _ = DumpStore.shared
+        _ = NDEFStore.shared
+        _ = PassportStore.shared
     }
 }

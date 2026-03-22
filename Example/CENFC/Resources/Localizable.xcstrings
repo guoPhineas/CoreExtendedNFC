@@ -3860,6 +3860,9 @@
         }
       }
     },
+    "Open Photo Preview" : {
+
+    },
     "Open Settings" : {
       "localizations" : {
         "en" : {
@@ -5862,6 +5865,9 @@
           }
         }
       }
+    },
+    "The portrait is available, but inline decoding is not supported on this device. Tap to open the extracted image preview." : {
+
     },
     "This action cannot be undone." : {
       "localizations" : {

@@ -6,7 +6,7 @@ import Then
 import UIKit
 
 @MainActor
-class NDEFStore: ObjectListDataSource {
+class NDEFStore: @MainActor ObjectListDataSource {
     static let shared = NDEFStore()
 
     private let fileURL: URL = {

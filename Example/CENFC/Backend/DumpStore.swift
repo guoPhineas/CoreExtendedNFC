@@ -6,7 +6,7 @@ import Then
 import UIKit
 
 @MainActor
-class DumpStore: ObjectListDataSource {
+class DumpStore: @MainActor ObjectListDataSource {
     static let shared = DumpStore()
 
     private let fileURL: URL = {

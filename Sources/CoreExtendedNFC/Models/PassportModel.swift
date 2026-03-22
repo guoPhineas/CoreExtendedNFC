@@ -63,6 +63,31 @@ public struct PassportModel: Sendable, Codable, Equatable {
     /// Step-by-step status for passport security mechanisms.
     public let securityReport: PassportSecurityReport
 
+    /// Best-effort face image bytes for DG2.
+    ///
+    /// Older saved records may have persisted the full ISO 19794-5 facial record
+    /// instead of the extracted JPEG/JPEG2000 payload. When raw DG2 bytes are
+    /// available, prefer reparsing them so UI consumers always receive the
+    /// normalized image payload when possible.
+    public var resolvedFaceImageData: Data? {
+        if let rawDG2 = rawDataGroups[.dg2],
+           let reparsed = try? DataGroupParser.parseDG2(rawDG2)
+        {
+            return reparsed
+        }
+        return faceImageData
+    }
+
+    /// Best-effort signature image bytes for DG7.
+    public var resolvedSignatureImageData: Data? {
+        if let rawDG7 = rawDataGroups[.dg7],
+           let reparsed = try? DataGroupParser.parseDG7(rawDG7)
+        {
+            return reparsed
+        }
+        return signatureImageData
+    }
+
     public init(
         cardAccess: SecurityInfos? = nil,
         cardAccessRaw: Data? = nil,

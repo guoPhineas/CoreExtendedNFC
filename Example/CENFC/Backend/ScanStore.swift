@@ -6,7 +6,7 @@ import Then
 import UIKit
 
 @MainActor
-class ScanStore: ObjectListDataSource {
+class ScanStore: @MainActor ObjectListDataSource {
     static let shared = ScanStore()
 
     private let fileURL: URL = {
