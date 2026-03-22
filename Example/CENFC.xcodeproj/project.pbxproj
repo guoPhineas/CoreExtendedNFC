@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		504CD4472F608CAC0015F2E4 /* ConfigurableKit in Frameworks */ = {isa = PBXBuildFile; productRef = 504CD4462F608CAC0015F2E4 /* ConfigurableKit */; };
 		504CD4592F608D290015F2E4 /* ColorfulX in Frameworks */ = {isa = PBXBuildFile; productRef = 504CD4582F608D290015F2E4 /* ColorfulX */; };
 		504CD45C2F608D360015F2E4 /* GlyphixTextFx in Frameworks */ = {isa = PBXBuildFile; productRef = 504CD45B2F608D360015F2E4 /* GlyphixTextFx */; };
 		504CD45F2F608D480015F2E4 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 504CD45E2F608D480015F2E4 /* SnapKit */; };
@@ -15,6 +14,7 @@
 		504CD4652F608D650015F2E4 /* Then in Frameworks */ = {isa = PBXBuildFile; productRef = 504CD4642F608D650015F2E4 /* Then */; };
 		504CD4672F608D8A0015F2E4 /* CoreExtendedNFC in Frameworks */ = {isa = PBXBuildFile; productRef = 504CD4662F608D8A0015F2E4 /* CoreExtendedNFC */; };
 		5067F67B2F6169DB00633731 /* SPIndicator in Frameworks */ = {isa = PBXBuildFile; productRef = 5067F67A2F6169DB00633731 /* SPIndicator */; };
+		508966122F7005B200F40110 /* ConfigurableKit in Frameworks */ = {isa = PBXBuildFile; productRef = 508966112F7005B200F40110 /* ConfigurableKit */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -83,12 +83,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				508966122F7005B200F40110 /* ConfigurableKit in Frameworks */,
 				504CD45C2F608D360015F2E4 /* GlyphixTextFx in Frameworks */,
 				504CD4652F608D650015F2E4 /* Then in Frameworks */,
 				504CD4672F608D8A0015F2E4 /* CoreExtendedNFC in Frameworks */,
 				5067F67B2F6169DB00633731 /* SPIndicator in Frameworks */,
 				504CD45F2F608D480015F2E4 /* SnapKit in Frameworks */,
-				504CD4472F608CAC0015F2E4 /* ConfigurableKit in Frameworks */,
 				504CD4622F608D540015F2E4 /* SwifterSwift in Frameworks */,
 				504CD4592F608D290015F2E4 /* ColorfulX in Frameworks */,
 			);
@@ -169,7 +169,6 @@
 			);
 			name = CENFC;
 			packageProductDependencies = (
-				504CD4462F608CAC0015F2E4 /* ConfigurableKit */,
 				504CD4582F608D290015F2E4 /* ColorfulX */,
 				504CD45B2F608D360015F2E4 /* GlyphixTextFx */,
 				504CD45E2F608D480015F2E4 /* SnapKit */,
@@ -177,6 +176,7 @@
 				504CD4642F608D650015F2E4 /* Then */,
 				504CD4662F608D8A0015F2E4 /* CoreExtendedNFC */,
 				5067F67A2F6169DB00633731 /* SPIndicator */,
+				508966112F7005B200F40110 /* ConfigurableKit */,
 			);
 			productName = CENFC;
 			productReference = 501BBD002F5D768E00C52667 /* CENFC.app */;
@@ -262,7 +262,6 @@
 			mainGroup = 501BBCF72F5D768E00C52667;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				504CD4452F608CAC0015F2E4 /* XCLocalSwiftPackageReference "ConfigurableKit" */,
 				504CD4482F608CC80015F2E4 /* XCRemoteSwiftPackageReference "MarkdownView" */,
 				504CD4572F608D290015F2E4 /* XCRemoteSwiftPackageReference "ColorfulX" */,
 				504CD45A2F608D360015F2E4 /* XCRemoteSwiftPackageReference "GlyphixTextFx" */,
@@ -271,6 +270,7 @@
 				504CD4632F608D650015F2E4 /* XCRemoteSwiftPackageReference "Then" */,
 				504CD4682F608D8A0015F2E4 /* XCLocalSwiftPackageReference ".." */,
 				5067F6792F6169DB00633731 /* XCRemoteSwiftPackageReference "SPIndicator" */,
+				508966102F7005B200F40110 /* XCRemoteSwiftPackageReference "ConfigurableKit" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 501BBD012F5D768E00C52667 /* Products */;
@@ -668,10 +668,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		504CD4452F608CAC0015F2E4 /* XCLocalSwiftPackageReference "ConfigurableKit" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = ../../ConfigurableKit;
-		};
 		504CD4682F608D8A0015F2E4 /* XCLocalSwiftPackageReference ".." */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = ..;
@@ -735,14 +731,17 @@
 				minimumVersion = 1.6.5;
 			};
 		};
+		508966102F7005B200F40110 /* XCRemoteSwiftPackageReference "ConfigurableKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Lakr233/ConfigurableKit";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.1.1;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		504CD4462F608CAC0015F2E4 /* ConfigurableKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 504CD4452F608CAC0015F2E4 /* XCLocalSwiftPackageReference "ConfigurableKit" */;
-			productName = ConfigurableKit;
-		};
 		504CD4582F608D290015F2E4 /* ColorfulX */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 504CD4572F608D290015F2E4 /* XCRemoteSwiftPackageReference "ColorfulX" */;
@@ -777,6 +776,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 5067F6792F6169DB00633731 /* XCRemoteSwiftPackageReference "SPIndicator" */;
 			productName = SPIndicator;
+		};
+		508966112F7005B200F40110 /* ConfigurableKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 508966102F7005B200F40110 /* XCRemoteSwiftPackageReference "ConfigurableKit" */;
+			productName = ConfigurableKit;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
