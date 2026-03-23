@@ -10,7 +10,7 @@ public enum CoreExtendedNFC {
     /// The returned ``NFCSessionManager`` keeps the NFC session alive.
     /// Call ``NFCSessionManager/invalidate()`` when you are done with the transport.
     public static func scan(
-        message: String = "Hold your iPhone near the NFC tag"
+        message: String = String(localized: "Hold your iPhone near the NFC tag")
     ) async throws -> (CardInfo, any NFCTagTransport, NFCSessionManager) {
         let manager = NFCSessionManager()
         let (info, transport) = try await manager.scan(message: message)
@@ -22,7 +22,7 @@ public enum CoreExtendedNFC {
 
     /// Scan and automatically dump the card's full memory.
     public static func scanAndDump(
-        message: String = "Hold your iPhone near the NFC tag"
+        message: String = String(localized: "Hold your iPhone near the NFC tag")
     ) async throws -> (CardInfo, MemoryDump) {
         let (info, transport, manager) = try await scan(message: message)
 
@@ -199,7 +199,7 @@ public enum CoreExtendedNFC {
         dataGroups: [DataGroupId] = [.com, .dg1, .dg2, .sod],
         performActiveAuth: Bool = true,
         trustAnchorsDER: [Data] = [],
-        message: String = "Hold your iPhone near your passport",
+        message: String = String(localized: "Hold your iPhone near your passport"),
         onProgress: (@Sendable (String) -> Void)? = nil
     ) async throws -> PassportModel {
         let manager = NFCSessionManager()
