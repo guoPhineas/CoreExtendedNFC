@@ -65,43 +65,43 @@ These are the merged values collected from public iOS NFC apps and SDKs on GitHu
 
 ## FeliCa System Codes
 
-| Value | Meaning / common use | Notes |
-| --- | --- | --- |
-| `0003` | Transit IC cards in Japan | Commonly used for Suica / PASMO / ICOCA-style balance reads. |
-| `FE00` | FeliCa common area | Often used by apps that need broad FeliCa discovery across multiple card families. |
-| `8008` | Octopus | Seen in public iOS NFC examples targeting Hong Kong Octopus cards. |
-| `88B4` | FeliCa Lite-S | Common in demos that identify or test Sony FeliCa Lite-S tags. |
-| `12FC` | Commonly associated with WAON-style FeliCa usage | Public app configs include it, but exact issuer usage may vary by card generation. |
-| `8005` | Public sample value from iOS NFC OSS apps | Included in `react-native-nfc-manager`; exact card family not clearly documented in that repo. |
-| `90B7` | Public sample value from iOS NFC OSS apps | Included in `react-native-nfc-manager`; exact card family not clearly documented in that repo. |
-| `927A` | Public sample value from iOS NFC OSS apps | Included in `react-native-nfc-manager`; exact card family not clearly documented in that repo. |
-| `86A7` | Additional Suica-related community value | Included in `react-native-nfc-manager`; often reported alongside Suica support. |
+| Value  | Meaning / common use                             | Notes                                                                                          |
+| ------ | ------------------------------------------------ | ---------------------------------------------------------------------------------------------- |
+| `0003` | Transit IC cards in Japan                        | Commonly used for Suica / PASMO / ICOCA-style balance reads.                                   |
+| `FE00` | FeliCa common area                               | Often used by apps that need broad FeliCa discovery across multiple card families.             |
+| `8008` | Octopus                                          | Seen in public iOS NFC examples targeting Hong Kong Octopus cards.                             |
+| `88B4` | FeliCa Lite-S                                    | Common in demos that identify or test Sony FeliCa Lite-S tags.                                 |
+| `12FC` | Commonly associated with WAON-style FeliCa usage | Public app configs include it, but exact issuer usage may vary by card generation.             |
+| `8005` | Public sample value from iOS NFC OSS apps        | Included in `react-native-nfc-manager`; exact card family not clearly documented in that repo. |
+| `90B7` | Public sample value from iOS NFC OSS apps        | Included in `react-native-nfc-manager`; exact card family not clearly documented in that repo. |
+| `927A` | Public sample value from iOS NFC OSS apps        | Included in `react-native-nfc-manager`; exact card family not clearly documented in that repo. |
+| `86A7` | Additional Suica-related community value         | Included in `react-native-nfc-manager`; often reported alongside Suica support.                |
 
 ## ISO 7816 AIDs
 
-| Value | Meaning / common use | Notes |
-| --- | --- | --- |
-| `D2760000850101` | NFC Forum NDEF Tag Application | Standard AID for selecting the NDEF application on Type 4 tags. |
-| `D2760000850100` | Related NFC Forum / DESFire-style application selection value | Seen in public iOS NFC configs; often paired with `D2760000850101`. |
-| `A0000002471001` | ICAO eMRTD LDS application | The standard passport / ePassport app AID. |
-| `A0000002472001` | ICAO travel document auxiliary application | Commonly included by ID verification SDKs for passports and national ID cards. |
-| `A000000167455349474E` | eSign application | The ASCII tail decodes to `ESIGN`. Common in European eID / signing-card configs. |
-| `A000000291` | Calypso transit AID prefix | Often used as a prefix-style match for Calypso transit cards. |
-| `A0000004520001` | Korean transit / stored-value ecosystem application | Seen in public mobile NFC configs used for Korean transit cards. |
-| `D4100000030001` | Korean transit application | Included by passport / identity apps that also support common transit-card detection. |
-| `D4100000140001` | Korean transit application | Commonly associated with Cashbee-family cards in public NFC examples. |
-| `D410000029000001` | Public sample AID from iOS NFC app configs | Preserved because it appears in community NFC setups; exact issuer mapping is still unclear. |
-| `A000000812010208` | Tangem card application | Documented by `tangem-sdk-ios`. |
-| `A00000045645444C2D3031` | Dutch driving licence application | Used by public ID verification SDKs for Dutch mobile document reading. |
-| `00000000000000` | Catch-all root / issuer-specific selection value | Used by several passport / ID SDKs when some documents respond from a root or proprietary app context. |
-| `A000000077030C60000000FE00000500` | National eID application used by some European ID cards | Seen in public ID-reading SDKs; issuer usage depends on the document. |
-| `E828BD080FA0000001674544415441` | Proprietary eData / eID application | Seen in public ID-reading SDKs; the ASCII tail contains `EDATA`. |
-| `A000000527471117` | YubiKey Management application | Documented by `yubikit-ios`. |
-| `A0000006472F0001` | FIDO / U2F application | Used by YubiKey and many FIDO-compatible security keys. |
-| `A0000005272101` | YubiKey OATH application | Used for OATH HOTP / TOTP management over NFC. |
-| `A000000308` | PIV application | Used for PIV smart-card access, including YubiKey PIV. |
-| `A000000527200101` | YubiKey OTP / HMAC-SHA1 application | Used for OTP and challenge-response flows. |
-| `A000000151000000` | YubiKey Security Domain | Used for management and secure-element administration flows. |
+| Value                              | Meaning / common use                                          | Notes                                                                                                  |
+| ---------------------------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `D2760000850101`                   | NFC Forum NDEF Tag Application                                | Standard AID for selecting the NDEF application on Type 4 tags.                                        |
+| `D2760000850100`                   | Related NFC Forum / DESFire-style application selection value | Seen in public iOS NFC configs; often paired with `D2760000850101`.                                    |
+| `A0000002471001`                   | ICAO eMRTD LDS application                                    | The standard passport / ePassport app AID.                                                             |
+| `A0000002472001`                   | ICAO travel document auxiliary application                    | Commonly included by ID verification SDKs for passports and national ID cards.                         |
+| `A000000167455349474E`             | eSign application                                             | The ASCII tail decodes to `ESIGN`. Common in European eID / signing-card configs.                      |
+| `A000000291`                       | Calypso transit AID prefix                                    | Often used as a prefix-style match for Calypso transit cards.                                          |
+| `A0000004520001`                   | Korean transit / stored-value ecosystem application           | Seen in public mobile NFC configs used for Korean transit cards.                                       |
+| `D4100000030001`                   | Korean transit application                                    | Included by passport / identity apps that also support common transit-card detection.                  |
+| `D4100000140001`                   | Korean transit application                                    | Commonly associated with Cashbee-family cards in public NFC examples.                                  |
+| `D410000029000001`                 | Public sample AID from iOS NFC app configs                    | Preserved because it appears in community NFC setups; exact issuer mapping is still unclear.           |
+| `A000000812010208`                 | Tangem card application                                       | Documented by `tangem-sdk-ios`.                                                                        |
+| `A00000045645444C2D3031`           | Dutch driving licence application                             | Used by public ID verification SDKs for Dutch mobile document reading.                                 |
+| `00000000000000`                   | Catch-all root / issuer-specific selection value              | Used by several passport / ID SDKs when some documents respond from a root or proprietary app context. |
+| `A000000077030C60000000FE00000500` | National eID application used by some European ID cards       | Seen in public ID-reading SDKs; issuer usage depends on the document.                                  |
+| `E828BD080FA0000001674544415441`   | Proprietary eData / eID application                           | Seen in public ID-reading SDKs; the ASCII tail contains `EDATA`.                                       |
+| `A000000527471117`                 | YubiKey Management application                                | Documented by `yubikit-ios`.                                                                           |
+| `A0000006472F0001`                 | FIDO / U2F application                                        | Used by YubiKey and many FIDO-compatible security keys.                                                |
+| `A0000005272101`                   | YubiKey OATH application                                      | Used for OATH HOTP / TOTP management over NFC.                                                         |
+| `A000000308`                       | PIV application                                               | Used for PIV smart-card access, including YubiKey PIV.                                                 |
+| `A000000527200101`                 | YubiKey OTP / HMAC-SHA1 application                           | Used for OTP and challenge-response flows.                                                             |
+| `A000000151000000`                 | YubiKey Security Domain                                       | Used for management and secure-element administration flows.                                           |
 
 ## Public GitHub Sources
 

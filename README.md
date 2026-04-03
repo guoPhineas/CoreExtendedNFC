@@ -28,18 +28,18 @@ This library does.
 
 **CoreNFC vs CoreExtendedNFC:**
 
-|                                   | CoreNFC | CoreExtendedNFC |
-| --------------------------------- | :-----: | :-------------: |
-| Tag discovery & session           |   yes   |       yes       |
-| Raw APDU send/receive             |   yes   |       yes       |
-| Card identification               | partial |       yes       |
-| Memory read/write/dump            | partial |       yes       |
-| DESFire app/file operations       | no built-in high-level API | yes |
-| NDEF read/write (Type 3 & 4)      |   yes   |       yes       |
-| Passport reading & authentication | possible, not built-in | yes |
-| Crypto (AES-CMAC, 3DES, MAC)      | no built-in |      yes      |
-| Export (Flipper, Proxmark3, JSON) | no built-in |      yes      |
-| Mock transport for testing        | no built-in |      yes      |
+|                                   |          CoreNFC           | CoreExtendedNFC |
+| --------------------------------- | :------------------------: | :-------------: |
+| Tag discovery & session           |            yes             |       yes       |
+| Raw APDU send/receive             |            yes             |       yes       |
+| Card identification               |          partial           |       yes       |
+| Memory read/write/dump            |          partial           |       yes       |
+| DESFire app/file operations       | no built-in high-level API |       yes       |
+| NDEF read/write (Type 3 & 4)      |            yes             |       yes       |
+| Passport reading & authentication |   possible, not built-in   |       yes       |
+| Crypto (AES-CMAC, 3DES, MAC)      |        no built-in         |       yes       |
+| Export (Flipper, Proxmark3, JSON) |        no built-in         |       yes       |
+| Mock transport for testing        |        no built-in         |       yes       |
 
 `partial` means CoreNFC exposes low-level or tag-specific primitives, but not a unified high-level abstraction for identification, dump orchestration, or family-specific memory models.
 
