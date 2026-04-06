@@ -38,8 +38,8 @@
 		501BBD002F5D768E00C52667 /* CENFC.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CENFC.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		50AA00022F70000100AA0002 /* CENFCTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CENFCTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		50BB00022F80000100BB0002 /* CENFCUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CENFCUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		50CF00012F90000100CF0001 /* Development.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "CENFC/Configuration/Development.xcconfig"; sourceTree = "<group>"; };
-		50CF00022F90000100CF0002 /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "CENFC/Configuration/Release.xcconfig"; sourceTree = "<group>"; };
+		50CF00012F90000100CF0001 /* CENFC/Configuration/Development.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = CENFC/Configuration/Development.xcconfig; sourceTree = "<group>"; };
+		50CF00022F90000100CF0002 /* CENFC/Configuration/Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = CENFC/Configuration/Release.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -118,6 +118,7 @@
 				50BB00092F80000100BB0009 /* CENFCUITests */,
 				503A36B92F5D785B00C51966 /* Frameworks */,
 				501BBD012F5D768E00C52667 /* Products */,
+				50B886392F83A19F00CB8310 /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
@@ -136,6 +137,15 @@
 			children = (
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		50B886392F83A19F00CB8310 /* Recovered References */ = {
+			isa = PBXGroup;
+			children = (
+				50CF00012F90000100CF0001 /* CENFC/Configuration/Development.xcconfig */,
+				50CF00022F90000100CF0002 /* CENFC/Configuration/Release.xcconfig */,
+			);
+			name = "Recovered References";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -337,7 +347,7 @@
 /* Begin XCBuildConfiguration section */
 		501BBD092F5D768F00C52667 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 50CF00012F90000100CF0001 /* Development.xcconfig */;
+			baseConfigurationReference = 50CF00012F90000100CF0001 /* CENFC/Configuration/Development.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -404,7 +414,7 @@
 		};
 		501BBD0A2F5D768F00C52667 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 50CF00022F90000100CF0002 /* Release.xcconfig */;
+			baseConfigurationReference = 50CF00022F90000100CF0002 /* CENFC/Configuration/Release.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -464,7 +474,7 @@
 		};
 		501BBD0C2F5D768F00C52667 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 50CF00012F90000100CF0001 /* Development.xcconfig */;
+			baseConfigurationReference = 50CF00012F90000100CF0001 /* CENFC/Configuration/Development.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -501,7 +511,7 @@
 		};
 		501BBD0D2F5D768F00C52667 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 50CF00022F90000100CF0002 /* Release.xcconfig */;
+			baseConfigurationReference = 50CF00022F90000100CF0002 /* CENFC/Configuration/Release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;

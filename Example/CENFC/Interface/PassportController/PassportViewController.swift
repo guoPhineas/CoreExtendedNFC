@@ -10,6 +10,7 @@ class PassportViewController: UIViewController {
     nonisolated enum Section { case main }
 
     private let tableView = UITableView(frame: .zero, style: .plain)
+    private let emptyState = EmptyStateView.scan()
     private var dataSource: ReorderableTableViewDiffableDataSource<Section, UUID>!
     private var pendingSnapshotReload = false
     private var pendingSnapshotAnimated = true
@@ -121,6 +122,7 @@ class PassportViewController: UIViewController {
         setupDataSource()
         setupNavBar()
         setupSearch()
+        emptyState.install(on: tableView)
         reloadSnapshot(animatingDifferences: false)
     }
 
@@ -132,6 +134,11 @@ class PassportViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         flushPendingSnapshotReloadIfNeeded()
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        emptyState.update(in: tableView)
     }
 
     // MARK: - Setup
@@ -289,6 +296,7 @@ class PassportViewController: UIViewController {
         snapshot.appendSections([.main])
         snapshot.appendItems(filtered.map(\.id))
         dataSource.apply(snapshot, animatingDifferences: animatingDifferences)
+        emptyState.isHidden = !PassportStore.shared.records.isEmpty
     }
 
     private func flushPendingSnapshotReloadIfNeeded() {
@@ -371,6 +379,10 @@ class PassportViewController: UIViewController {
 // MARK: - UITableViewDelegate
 
 extension PassportViewController: UITableViewDelegate {
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        emptyState.update(in: scrollView)
+    }
+
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if tableView.isEditing {
             updateEditingNavBar()

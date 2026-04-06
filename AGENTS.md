@@ -120,6 +120,49 @@ PACE and Chip Authentication stubs exist but ECDH key agreement is not yet imple
 | NIST FIPS 197/180-4     | AES, SHA-1/256                            |
 | NXP datasheets          | NTAG, Ultralight, DESFire, Classic, ICODE |
 
+## Example App Conventions
+
+The `Example/` Xcode project is a UIKit companion app. It has its own conventions on top of the library rules above.
+
+### Auto Layout
+
+Use **SnapKit** for all Auto Layout constraints. Do not use `NSLayoutConstraint.activate` or `translatesAutoresizingMaskIntoConstraints` — SnapKit handles both.
+
+```swift
+// ✅
+view.addSubview(tableView)
+tableView.snp.makeConstraints { make in
+    make.edges.equalToSuperview()
+}
+
+// ❌
+tableView.translatesAutoresizingMaskIntoConstraints = false
+NSLayoutConstraint.activate([...])
+```
+
+### Feedback Patterns
+
+- **Error / important feedback**: `UIAlertController` (.alert) — user must acknowledge.
+- **Lightweight feedback** (copy, import, etc.): `SPIndicator` toast — non-intrusive.
+- **User choice dialogs** (delete confirm, duplicates): `UIAlertController`.
+
+### Empty States
+
+List view controllers (Scanner, Dump, NDEF, Passport) use `EmptyStateView` for empty-list placeholders:
+- Installed as a subview of the table view via `emptyState.install(on: tableView)`.
+- Visibility toggled by checking the data store's `records.isEmpty`.
+- Fades on scroll via `emptyState.updateAlpha(for: scrollView)` in `scrollViewDidScroll`.
+
+### Dismiss Keyboard
+
+All view controllers call `setupDismissKeyboardOnTap()` in `viewDidLoad()`.
+
+### Localization
+
+- Source language: `en`, with `zh-Hans` translations.
+- Use `String(localized:)` for all user-facing text.
+- After adding new strings, backfill `en` values — see memory notes for the script.
+
 ## What NOT to Do
 
 - **Never** attempt MIFARE Classic authentication (0x60/0x61) — iOS cannot handle Crypto1 parity bits. Classic is identification-only.
@@ -127,3 +170,4 @@ PACE and Chip Authentication stubs exist but ECDH key agreement is not yet imple
 - **Never** block the main thread — all NFC ops are async.
 - **Never** hardcode session timeout handling — let CoreNFC manage it, catch the error.
 - **Never** add external crypto dependencies unless implementing DESFire auth or PACE ECDH.
+- **Never** use raw `NSLayoutConstraint` in the Example app — use SnapKit.

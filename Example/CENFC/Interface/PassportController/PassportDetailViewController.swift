@@ -116,9 +116,14 @@ class PassportDetailViewController: StackScrollController {
                 title: String(localized: "Open Photo Preview"),
                 description: String(localized: "The portrait is available, but inline decoding is not supported on this device. Tap to open the extracted image preview."),
                 value: previewPayload.sourceFormatName,
-                tapAction: { [weak self] _ in
-                    self?.previewImage(previewPayload, name: DataGroupId.dg2.name)
-                }
+                extraMenuActions: [
+                    UIAction(
+                        title: String(localized: "Open Preview"),
+                        image: UIImage(systemName: "eye")
+                    ) { [weak self] _ in
+                        self?.previewImage(previewPayload, name: DataGroupId.dg2.name)
+                    },
+                ]
             )
         }
         stackView.addArrangedSubview(SeparatorView())
@@ -261,14 +266,35 @@ class PassportDetailViewController: StackScrollController {
         }) {
             let previewPayload = previewPayload(for: dgId)
             let icon = previewPayload != nil ? "photo.fill" : "doc.zipper"
+
+            var actions: [UIMenuElement] = []
+
+            actions.append(UIAction(
+                title: String(localized: "View Hex Dump"),
+                image: UIImage(systemName: "text.viewfinder")
+            ) { [weak self] _ in
+                let viewer = TextViewerController(
+                    title: dgId.name,
+                    text: data.hexDumpFormatted
+                )
+                self?.navigationController?.pushViewController(viewer, animated: true)
+            })
+
+            if let payload = previewPayload {
+                actions.append(UIAction(
+                    title: String(localized: "Open Preview"),
+                    image: UIImage(systemName: "eye")
+                ) { [weak self] _ in
+                    self?.previewImage(payload, name: dgId.name)
+                })
+            }
+
             addInfoRow(
                 icon: icon,
                 title: dgId.name,
                 description: String(localized: "Raw binary data for this data group."),
                 value: "\(data.count) bytes",
-                tapAction: previewPayload.map { payload in
-                    { [weak self] _ in self?.previewImage(payload, name: dgId.name) }
-                }
+                extraMenuActions: actions
             )
         }
 

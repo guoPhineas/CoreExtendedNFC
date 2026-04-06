@@ -12,7 +12,7 @@ class ConfigurableInfoView: ConfigurableView {
     override init() {
         super.init()
         valueLabel.titleLabel?.font = .preferredFont(forTextStyle: .subheadline)
-        valueLabel.titleLabel?.numberOfLines = 3
+        valueLabel.titleLabel?.numberOfLines = 1
         valueLabel.titleLabel?.lineBreakMode = .byTruncatingMiddle
         valueLabel.titleLabel?.textAlignment = .right
         valueLabel.contentHorizontalAlignment = .right

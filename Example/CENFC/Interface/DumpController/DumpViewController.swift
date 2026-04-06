@@ -103,6 +103,8 @@ class DumpViewController: ObjectListViewController<DumpStore>,
         action: #selector(exportSelected)
     )
 
+    private let emptyState = EmptyStateView.scan()
+
     // MARK: - Init
 
     init() {
@@ -115,11 +117,22 @@ class DumpViewController: ObjectListViewController<DumpStore>,
     override func viewDidLoad() {
         super.viewDidLoad()
         setupDismissKeyboardOnTap()
+        emptyState.install(on: tableView)
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.setToolbarHidden(true, animated: animated)
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        emptyState.isHidden = !DumpStore.shared.records.isEmpty
+        emptyState.update(in: tableView)
+    }
+
+    override func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        emptyState.update(in: scrollView)
     }
 
     // MARK: - Editing

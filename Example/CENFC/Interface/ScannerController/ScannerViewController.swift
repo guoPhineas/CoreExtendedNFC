@@ -121,15 +121,28 @@ class ScannerViewController: ObjectListViewController<ScanStore>,
 
     // MARK: - Lifecycle
 
+    private let emptyState = EmptyStateView.scan()
+
     override func viewDidLoad() {
         super.viewDidLoad()
         setupDismissKeyboardOnTap()
         setupExternalDropInteraction()
+        emptyState.install(on: tableView)
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.setToolbarHidden(true, animated: animated)
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        emptyState.isHidden = !ScanStore.shared.records.isEmpty
+        emptyState.update(in: tableView)
+    }
+
+    override func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        emptyState.update(in: scrollView)
     }
 
     // MARK: - Editing

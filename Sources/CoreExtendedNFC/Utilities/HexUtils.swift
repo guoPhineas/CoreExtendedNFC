@@ -12,11 +12,11 @@ public extension Data {
     }
 
     /// Multi-line hex dump with offsets:
-    /// 0000: 0A 1B 2C 3D 4E 5F 60 71  82 93 A4 B5 C6 D7 E8 F9
+    /// 0000: 0A 1B 2C 3D 4E 5F 60 71
     var hexDumpFormatted: String {
         var lines: [String] = []
-        for offset in stride(from: 0, to: count, by: 16) {
-            let end = Swift.min(offset + 16, count)
+        for offset in stride(from: 0, to: count, by: 8) {
+            let end = Swift.min(offset + 8, count)
             let slice = self[offset ..< end]
             let hex = slice.map { String(format: "%02X", $0) }.joined(separator: " ")
             lines.append(String(format: "%04X: %@", offset, hex))

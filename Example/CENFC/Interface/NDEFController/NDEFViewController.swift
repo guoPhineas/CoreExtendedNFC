@@ -122,6 +122,8 @@ class NDEFViewController: ObjectListViewController<NDEFStore>,
         return UIBarButtonItem(image: UIImage(systemName: "ellipsis.circle"), menu: menu)
     }
 
+    private let emptyState = EmptyStateView.scan()
+
     // MARK: - Init
 
     init() {
@@ -134,11 +136,22 @@ class NDEFViewController: ObjectListViewController<NDEFStore>,
     override func viewDidLoad() {
         super.viewDidLoad()
         setupDismissKeyboardOnTap()
+        emptyState.install(on: tableView)
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.setToolbarHidden(true, animated: animated)
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        emptyState.isHidden = !NDEFStore.shared.records.isEmpty
+        emptyState.update(in: tableView)
+    }
+
+    override func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        emptyState.update(in: scrollView)
     }
 
     override func viewWillDisappear(_ animated: Bool) {

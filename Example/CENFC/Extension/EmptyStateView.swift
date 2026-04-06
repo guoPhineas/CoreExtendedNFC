@@ -1,0 +1,49 @@
+import SnapKit
+import UIKit
+
+final class EmptyStateView: UIView {
+    private let label = UILabel()
+
+    init(message: String) {
+        super.init(frame: .zero)
+        isUserInteractionEnabled = false
+
+        label.text = message
+        label.font = .preferredFont(forTextStyle: .footnote)
+        label.textColor = .tertiaryLabel
+        label.textAlignment = .center
+
+        addSubview(label)
+        label.snp.makeConstraints { make in
+            make.center.equalToSuperview()
+            make.leading.greaterThanOrEqualToSuperview().offset(40)
+            make.trailing.lessThanOrEqualToSuperview().offset(-40)
+        }
+    }
+
+    @available(*, unavailable)
+    required init?(coder _: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    func install(on tableView: UITableView) {
+        tableView.addSubview(self)
+    }
+
+    /// Reposition in content space and fade based on scroll offset.
+    /// Call from both `viewDidLayoutSubviews` and `scrollViewDidScroll`.
+    func update(in scrollView: UIScrollView) {
+        let inset = scrollView.adjustedContentInset
+        let visibleHeight = scrollView.bounds.height - inset.top - inset.bottom
+        frame = CGRect(x: 0, y: 0, width: scrollView.bounds.width, height: visibleHeight)
+
+        let offset = scrollView.contentOffset.y + inset.top
+        alpha = max(0, 1 - abs(offset) / 60)
+    }
+
+    static func scan() -> EmptyStateView {
+        EmptyStateView(
+            message: String(localized: "Tap Scan to add · long press for options · two-finger swipe to multi-select")
+        )
+    }
+}
