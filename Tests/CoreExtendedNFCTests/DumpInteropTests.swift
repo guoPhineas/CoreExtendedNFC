@@ -12,8 +12,8 @@ import Foundation
 import Testing
 
 struct DumpInteropTests {
-    @Test("Structured dump export includes normalized fields")
-    func structuredJSONExport() throws {
+    @Test
+    func `Structured dump export includes normalized fields`() throws {
         let dump = MemoryDump(
             cardInfo: CardInfo(type: .ntag213, uid: Data([0x01, 0x02, 0x03, 0x04])),
             pages: [.init(number: 4, data: Data([0x03, 0x03, 0xD1, 0x01]))],
@@ -30,8 +30,8 @@ struct DumpInteropTests {
         #expect(json.contains("\"parsedNDEF\""))
     }
 
-    @Test("Export artifacts include binary, JSON, and libnfc MFD when supported")
-    func exportArtifacts() throws {
+    @Test
+    func `Export artifacts include binary, JSON, and libnfc MFD when supported`() throws {
         let dump = MemoryDump(
             cardInfo: CardInfo(type: .ntag213, uid: Data([0xDE, 0xAD, 0xBE, 0xEF])),
             pages: [
@@ -52,8 +52,8 @@ struct DumpInteropTests {
         #expect(try dump.exportLibNFCMFD() == Data([0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08]))
     }
 
-    @Test("Flipper Zero export round-trips page dumps")
-    func flipperRoundTrip() throws {
+    @Test
+    func `Flipper Zero export round-trips page dumps`() throws {
         let dump = MemoryDump(
             cardInfo: CardInfo(
                 type: .ntag213,
@@ -80,8 +80,8 @@ struct DumpInteropTests {
         #expect(imported.pages.first?.data == dump.pages.first?.data)
     }
 
-    @Test("Proxmark3 MFU binary export round-trips page dumps")
-    func proxmarkRoundTrip() throws {
+    @Test
+    func `Proxmark3 MFU binary export round-trips page dumps`() throws {
         let dump = MemoryDump(
             cardInfo: CardInfo(
                 type: .ntag213,
@@ -105,8 +105,8 @@ struct DumpInteropTests {
         #expect(imported.pages[44].data == Data([0x00, 0x00, 0x00, 0x00]))
     }
 
-    @Test("Proxmark3 plain binary import is accepted")
-    func proxmarkPlainBinaryImport() throws {
+    @Test
+    func `Proxmark3 plain binary import is accepted`() throws {
         let imported = try MemoryDump.importProxmark3MFU(
             Data([
                 0x04, 0x57, 0x01, 0x84,
@@ -121,8 +121,8 @@ struct DumpInteropTests {
         #expect(imported.pages[3].data == Data([0xE1, 0x10, 0x12, 0x00]))
     }
 
-    @Test("Dump diff summary reports changed blocks and files")
-    func dumpDiffSummary() {
+    @Test
+    func `Dump diff summary reports changed blocks and files`() {
         let lhs = MemoryDump(
             cardInfo: CardInfo(type: .iso15693_generic, uid: Data([0xE0, 0x01, 0x02, 0x03])),
             blocks: [
@@ -154,8 +154,8 @@ struct DumpInteropTests {
         #expect(diff.hasDifferences)
     }
 
-    @Test("libnfc MFD export rejects non page-based dumps")
-    func libNFCMFDUnsupported() {
+    @Test
+    func `libnfc MFD export rejects non page-based dumps`() {
         let dump = MemoryDump(
             cardInfo: CardInfo(type: .iso15693_generic, uid: Data([0xE0, 0x01, 0x02, 0x03])),
             blocks: [.init(number: 0, data: Data([0xAA, 0xBB, 0xCC, 0xDD]))]

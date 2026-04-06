@@ -12,8 +12,8 @@ import Testing
 struct TUnionTests {
     // MARK: - AID Selection
 
-    @Test("Select T-Union AID and read balance")
-    func selectAndReadBalance() async throws {
+    @Test
+    func `Select T-Union AID and read balance`() async throws {
         let transport = MockTransport()
         // Balance = 5000 fen (50 yuan). Shifted left by 1: 5000 << 1 = 10000 = 0x00002710
         transport.apduResponses = [
@@ -32,8 +32,8 @@ struct TUnionTests {
         #expect(result.formattedBalance == "¥50.00")
     }
 
-    @Test("T-Union AID not found throws error")
-    func aidNotFound() async {
+    @Test
+    func `T-Union AID not found throws error`() async {
         let transport = MockTransport()
         transport.apduResponses = [
             ResponseAPDU(data: Data(), sw1: 0x6A, sw2: 0x82), // SELECT fails
@@ -47,8 +47,8 @@ struct TUnionTests {
 
     // MARK: - Balance Parsing
 
-    @Test("Parse balance with bit shift (bits 1-31)")
-    func parseBalanceBitShift() async throws {
+    @Test
+    func `Parse balance with bit shift (bits 1-31)`() async throws {
         let transport = MockTransport()
         // 12345 fen → shifted: 12345 << 1 = 24690 = 0x00006072
         transport.apduResponses = [
@@ -63,8 +63,8 @@ struct TUnionTests {
         #expect(result.balanceRaw == 12345)
     }
 
-    @Test("Zero balance")
-    func zeroBalance() async throws {
+    @Test
+    func `Zero balance`() async throws {
         let transport = MockTransport()
         transport.apduResponses = [
             ResponseAPDU(data: Data(), sw1: 0x90, sw2: 0x00), // SELECT
@@ -81,24 +81,24 @@ struct TUnionTests {
 
     // MARK: - Hex Date Parsing
 
-    @Test("Parse hex date 20251231")
-    func parseHexDate() {
+    @Test
+    func `Parse hex date 20251231`() throws {
         let data = Data([0x20, 0x25, 0x12, 0x31])
         let date = TUnionReader.parseHexDate(data)
         #expect(date != nil)
 
         let calendar = Calendar(identifier: .gregorian)
-        let components = calendar.dateComponents(
-            in: TimeZone(identifier: "Asia/Shanghai")!,
-            from: date!
+        let components = try calendar.dateComponents(
+            in: #require(TimeZone(identifier: "Asia/Shanghai")),
+            from: #require(date)
         )
         #expect(components.year == 2025)
         #expect(components.month == 12)
         #expect(components.day == 31)
     }
 
-    @Test("Invalid hex date returns nil")
-    func invalidHexDate() {
+    @Test
+    func `Invalid hex date returns nil`() {
         let data = Data([0x20, 0x25, 0x13, 0x01]) // month 13
         let date = TUnionReader.parseHexDate(data)
         #expect(date == nil)
@@ -106,8 +106,8 @@ struct TUnionTests {
 
     // MARK: - Serial Number Parsing
 
-    @Test("Serial number extracted from file 0x15 with first nibble skipped")
-    func serialNumberParsing() async throws {
+    @Test
+    func `Serial number extracted from file 0x15 with first nibble skipped`() async throws {
         let transport = MockTransport()
         transport.apduResponses = [
             ResponseAPDU(data: Data(), sw1: 0x90, sw2: 0x00), // SELECT AID

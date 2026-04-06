@@ -22,8 +22,8 @@ import Testing
 struct DESFireTests {
     // MARK: - Command Wrapping
 
-    @Test("DESFire command wrapping format")
-    func commandWrapping() {
+    @Test
+    func `DESFire command wrapping format`() {
         let apdu = CommandAPDU.desfireWrap(command: 0x6A)
         #expect(apdu.cla == 0x90)
         #expect(apdu.ins == 0x6A)
@@ -32,15 +32,15 @@ struct DESFireTests {
         #expect(apdu.le == 0x00)
     }
 
-    @Test("DESFire command wrapping with data")
-    func commandWrappingWithData() {
+    @Test
+    func `DESFire command wrapping with data`() {
         let apdu = CommandAPDU.desfireWrap(command: 0x5A, data: Data([0x01, 0x00, 0x00]))
         let bytes = apdu.bytes
         #expect(bytes == Data([0x90, 0x5A, 0x00, 0x00, 0x03, 0x01, 0x00, 0x00, 0x00]))
     }
 
-    @Test("Additional Frame wrapping")
-    func additionalFrame() {
+    @Test
+    func `Additional Frame wrapping`() {
         let apdu = CommandAPDU.desfireWrap(command: DESFireCommands.ADDITIONAL_FRAME)
         #expect(apdu.ins == 0xAF)
         #expect(apdu.bytes == Data([0x90, 0xAF, 0x00, 0x00, 0x00]))
@@ -48,8 +48,8 @@ struct DESFireTests {
 
     // MARK: - Chaining
 
-    @Test("Single-frame response")
-    func singleFrame() async throws {
+    @Test
+    func `Single-frame response`() async throws {
         let mock = MockTransport()
         mock.apduResponses = [
             ResponseAPDU(data: Data([0x01, 0x02, 0x03]), sw1: 0x91, sw2: 0x00),
@@ -59,8 +59,8 @@ struct DESFireTests {
         #expect(result == Data([0x01, 0x02, 0x03]))
     }
 
-    @Test("Multi-frame AF chaining collects all data")
-    func multiFrame() async throws {
+    @Test
+    func `Multi-frame AF chaining collects all data`() async throws {
         let mock = MockTransport()
         mock.apduResponses = [
             ResponseAPDU(data: Data([0x01, 0x02]), sw1: 0x91, sw2: 0xAF),
@@ -76,8 +76,8 @@ struct DESFireTests {
         #expect(mock.sentAPDUs[2].ins == 0xAF)
     }
 
-    @Test("Error status throws desfireError")
-    func errorStatus() async {
+    @Test
+    func `Error status throws desfireError`() async {
         let mock = MockTransport()
         mock.apduResponses = [
             ResponseAPDU(data: Data(), sw1: 0x91, sw2: 0x9D), // Permission denied
@@ -100,16 +100,16 @@ struct DESFireTests {
 
     // MARK: - Status Codes
 
-    @Test("DESFire status descriptions")
-    func statusDescriptions() {
+    @Test
+    func `DESFire status descriptions`() {
         #expect(DESFireStatus.operationOK.description == "Operation OK")
         #expect(DESFireStatus.permissionDenied.description == "Permission denied")
         #expect(DESFireStatus.authenticationError.description == "Authentication error")
         #expect(DESFireStatus.fileNotFound.description == "File not found")
     }
 
-    @Test("DESFire status raw values")
-    func statusRawValues() {
+    @Test
+    func `DESFire status raw values`() {
         #expect(DESFireStatus.operationOK.rawValue == 0x00)
         #expect(DESFireStatus.additionalFrame.rawValue == 0xAF)
         #expect(DESFireStatus.permissionDenied.rawValue == 0x9D)
@@ -117,8 +117,8 @@ struct DESFireTests {
 
     // MARK: - Version Info
 
-    @Test("Parse DESFire version info")
-    func parseVersion() throws {
+    @Test
+    func `Parse DESFire version info`() throws {
         var data = Data(repeating: 0x00, count: 28)
         data[0] = 0x04 // HW vendor NXP
         data[3] = 0x01 // HW major version 1 = EV1
@@ -127,8 +127,8 @@ struct DESFireTests {
         #expect(info.cardType == .mifareDesfireEV1)
     }
 
-    @Test("DESFire EV2 detection")
-    func ev2Detection() throws {
+    @Test
+    func `DESFire EV2 detection`() throws {
         var data = Data(repeating: 0x00, count: 28)
         data[3] = 0x02 // HW major version 2 = EV2
         let info = try DESFireVersionInfo(data: data)
@@ -137,8 +137,8 @@ struct DESFireTests {
 
     // MARK: - File Settings
 
-    @Test("Parse standard data file settings")
-    func parseStandardFileSettings() throws {
+    @Test
+    func `Parse standard data file settings`() throws {
         // File type=0x00, comm=0x00, access=0x0000, size=0x000020 (32 bytes)
         let data = Data([0x00, 0x00, 0x00, 0x00, 0x20, 0x00, 0x00])
         let settings = try DESFireFileSettings(data: data)
@@ -148,8 +148,8 @@ struct DESFireTests {
 
     // MARK: - Application Operations
 
-    @Test("SELECT_APPLICATION sends 3-byte AID")
-    func selectApp() async throws {
+    @Test
+    func `SELECT_APPLICATION sends 3-byte AID`() async throws {
         let mock = MockTransport()
         mock.apduResponses = [
             ResponseAPDU(data: Data(), sw1: 0x91, sw2: 0x00),
@@ -159,8 +159,8 @@ struct DESFireTests {
         #expect(mock.sentAPDUs[0].ins == 0x5A)
     }
 
-    @Test("GET_APPLICATION_IDS parses 3-byte AIDs")
-    func getAppIDs() async throws {
+    @Test
+    func `GET_APPLICATION_IDS parses 3-byte AIDs`() async throws {
         let mock = MockTransport()
         mock.apduResponses = [
             ResponseAPDU(data: Data([0x01, 0x00, 0x00, 0x02, 0x00, 0x00]), sw1: 0x91, sw2: 0x00),
@@ -174,8 +174,8 @@ struct DESFireTests {
 
     // MARK: - Authentication
 
-    @Test("AuthenticateISO establishes a 2K3DES session")
-    func authenticateISO() async throws {
+    @Test
+    func `AuthenticateISO establishes a 2K3DES session`() async throws {
         // Wrapped native mode and AF chaining are public in AN11004 section 5.1.
         // The legacy 2K3DES session-key splice used here is regression-locked for
         // interoperability because NXP's public DESFire notes do not expose the
@@ -217,8 +217,8 @@ struct DESFireTests {
         #expect(mock.sentAPDUs[1].data == challengeCiphertext)
     }
 
-    @Test("AuthenticateEV2First derives AES session keys and TI")
-    func authenticateEV2First() async throws {
+    @Test
+    func `AuthenticateEV2First derives AES session keys and TI`() async throws {
         // AN12343 section 10.1 describes the public EV2 flow:
         // 1. `0x71` starts authentication and the PICC returns `E(Kx, RndB) || PDcap2`.
         // 2. The PCD answers with `E(Kx, RndA || RndB' || PCDcap2)`.
@@ -275,8 +275,8 @@ struct DESFireTests {
         #expect(mock.sentAPDUs[1].data == challengeCiphertext)
     }
 
-    @Test("Authenticated EV2 read performs auth before READ_DATA")
-    func authenticatedReadEV2() async throws {
+    @Test
+    func `Authenticated EV2 read performs auth before READ_DATA`() async throws {
         // The ordering assertion here is intentional: authenticate first, then
         // issue the plain-communication file command. That keeps UIKit truthful
         // about current support: authenticated bootstrap, plain read only.
@@ -331,8 +331,8 @@ struct DESFireTests {
         )
     }
 
-    @Test("Authenticated EV2 record read performs auth before READ_RECORDS")
-    func authenticatedRecordsEV2() async throws {
+    @Test
+    func `Authenticated EV2 record read performs auth before READ_RECORDS`() async throws {
         // This mirrors the EV2-first transcript from AN12343 section 10.1, then
         // locks the wrapped `READ_RECORDS (0xBB)` request layout we expose as a
         // safe read-only follow-up after authentication.
@@ -384,8 +384,8 @@ struct DESFireTests {
         #expect(mock.sentAPDUs[2].data == Data([0x07, 0x02, 0x00, 0x00, 0x01, 0x00, 0x00]))
     }
 
-    @Test("Authenticated ISO read performs auth before READ_DATA")
-    func authenticatedReadISO() async throws {
+    @Test
+    func `Authenticated ISO read performs auth before READ_DATA`() async throws {
         // `0xBD` is the wrapped READ_DATA instruction used after the legacy ISO
         // mutual-auth handshake has completed. This test keeps the call order and
         // 3-byte offset / length encoding fixed so a single-byte regression fails fast.
@@ -429,8 +429,8 @@ struct DESFireTests {
         #expect(mock.sentAPDUs[2].data == Data([0x04, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00]))
     }
 
-    @Test("Authenticated ISO record read performs auth before READ_RECORDS")
-    func authenticatedRecordsISO() async throws {
+    @Test
+    func `Authenticated ISO record read performs auth before READ_RECORDS`() async throws {
         let key = try #require(Data(hexString: "00112233445566778899AABBCCDDEEFF"))
         let rndA = try #require(Data(hexString: "0102030405060708"))
         let rndB = try #require(Data(hexString: "1122334455667788"))
@@ -471,8 +471,8 @@ struct DESFireTests {
         #expect(mock.sentAPDUs[2].data == Data([0x06, 0x01, 0x00, 0x00, 0x02, 0x00, 0x00]))
     }
 
-    @Test("Authenticated ISO value read performs auth before GET_VALUE")
-    func authenticatedValueISO() async throws {
+    @Test
+    func `Authenticated ISO value read performs auth before GET_VALUE`() async throws {
         // `0x6C` is the wrapped GET_VALUE instruction. This remains read-only on
         // purpose; we are not exposing authenticated write/admin flows yet.
         let key = try #require(Data(hexString: "00112233445566778899AABBCCDDEEFF"))
@@ -513,8 +513,8 @@ struct DESFireTests {
         #expect(mock.sentAPDUs[2].data == Data([0x05]))
     }
 
-    @Test("Authenticated EV2 value read performs auth before GET_VALUE")
-    func authenticatedValueEV2() async throws {
+    @Test
+    func `Authenticated EV2 value read performs auth before GET_VALUE`() async throws {
         // Like the other EV2 tests, this anchors the auth transcript to AN12343
         // and regression-locks the follow-up wrapped `GET_VALUE (0x6C)` request.
         let key = try #require(Data(hexString: "000102030405060708090A0B0C0D0E0F"))

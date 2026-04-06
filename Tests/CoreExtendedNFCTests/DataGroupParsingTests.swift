@@ -25,8 +25,8 @@ struct DataGroupParsingTests {
 
     // ICAO 9303 Part 10, Section 4.7.2.1
 
-    @Test("Parse COM data group")
-    func parseCOM() throws {
+    @Test
+    func `Parse COM data group`() throws {
         // Construct COM TLV:
         // 60 <len>
         //   5F01 04 "0107"          (LDS version)
@@ -70,8 +70,8 @@ struct DataGroupParsingTests {
 
     // MARK: - DG1 (MRZ)
 
-    @Test("Parse DG1 with TD3 passport MRZ")
-    func parseDG1TD3() throws {
+    @Test
+    func `Parse DG1 with TD3 passport MRZ`() throws {
         // TD3 MRZ: 2 lines × 44 chars = 88 chars
         let mrzString = "P<UTOERIKSSON<<ANNA<MARIA<<<<<<<<<<<<<<<<<<<" +
             "L898902C<3UTO6408125F1204159ZE184226B<<<<<10"
@@ -100,8 +100,8 @@ struct DataGroupParsingTests {
         #expect(mrz.dateOfExpiry == "120415")
     }
 
-    @Test("Parse DG1 with TD1 ID card MRZ")
-    func parseDG1TD1() throws {
+    @Test
+    func `Parse DG1 with TD1 ID card MRZ`() throws {
         // TD1: 3 lines × 30 chars = 90 chars
         let mrzString = "I<UTOD231458907<<<<<<<<<<<<<<<" +
             "7408122F1204159UTO<<<<<<<<<<<6" +
@@ -124,8 +124,8 @@ struct DataGroupParsingTests {
         #expect(mrz.firstName == "ANNA MARIA")
     }
 
-    @Test("DG1 missing 0x61 wrapper throws error")
-    func dg1MissingWrapper() {
+    @Test
+    func `DG1 missing 0x61 wrapper throws error`() {
         // Wrong tag — 0x62 instead of 0x61
         let data = Data([0x62, 0x03, 0x5F, 0x1F, 0x00])
         #expect(throws: NFCError.self) {
@@ -135,8 +135,8 @@ struct DataGroupParsingTests {
 
     // MARK: - DG2 (Face Image)
 
-    @Test("Parse DG2 extracts JPEG image data")
-    func parseDG2JPEG() throws {
+    @Test
+    func `Parse DG2 extracts JPEG image data`() throws {
         // Build a minimal DG2 with a JPEG signature embedded
         // 75 <len>
         //   7F61 <len>
@@ -190,16 +190,16 @@ struct DataGroupParsingTests {
         #expect(result.count == imageContent.count)
     }
 
-    @Test("DG2 missing 0x75 wrapper throws error")
-    func dg2MissingWrapper() {
+    @Test
+    func `DG2 missing 0x75 wrapper throws error`() {
         let data = Data([0x76, 0x00]) // Wrong tag
         #expect(throws: NFCError.self) {
             _ = try DataGroupParser.parseDG2(data)
         }
     }
 
-    @Test("Parse DG2 extracts JPEG2000 codestream from ISO 19794-5 face record")
-    func parseDG2JPEG2000Codestream() throws {
+    @Test
+    func `Parse DG2 extracts JPEG2000 codestream from ISO 19794-5 face record`() throws {
         // Simulate a facial record beginning with the `FAC\0` header, followed by
         // an embedded JPEG2000 codestream (`FF4F FF51`).
         let faceRecordHeader = Data([
@@ -240,8 +240,8 @@ struct DataGroupParsingTests {
 
     // MARK: - MRZ Parsing
 
-    @Test("MRZ TD3 format (passport)")
-    func mrzTD3() throws {
+    @Test
+    func `MRZ TD3 format (passport)`() throws {
         let mrzString = "P<UTOERIKSSON<<ANNA<MARIA<<<<<<<<<<<<<<<<<<<" +
             "L898902C<3UTO6408125F1204159ZE184226B<<<<<10"
         let mrz = try MRZData(mrzString: mrzString)
@@ -258,8 +258,8 @@ struct DataGroupParsingTests {
         #expect(mrz.nationality == "UTO")
     }
 
-    @Test("MRZ TD1 format (ID card)")
-    func mrzTD1() throws {
+    @Test
+    func `MRZ TD1 format (ID card)`() throws {
         let mrzString = "I<UTOD231458907<<<<<<<<<<<<<<<" +
             "7408122F1204159UTO<<<<<<<<<<<6" +
             "ERIKSSON<<ANNA<MARIA<<<<<<<<<<"
@@ -277,8 +277,8 @@ struct DataGroupParsingTests {
         #expect(mrz.firstName == "ANNA MARIA")
     }
 
-    @Test("MRZ TD2 format (visa)")
-    func mrzTD2() throws {
+    @Test
+    func `MRZ TD2 format (visa)`() throws {
         // TD2: 2 lines × 36 chars = 72 chars
         let mrzString = "I<UTOERIKSSON<<ANNA<MARIA<<<<<<<<<<<" +
             "D231458907UTO7408122F1204159<<<<<<<6"
@@ -292,8 +292,8 @@ struct DataGroupParsingTests {
         #expect(mrz.documentNumber == "D23145890")
     }
 
-    @Test("Invalid MRZ length throws error")
-    func mrzInvalidLength() {
+    @Test
+    func `Invalid MRZ length throws error`() {
         #expect(throws: NFCError.self) {
             _ = try MRZData(mrzString: "TOOSHORT")
         }
@@ -301,8 +301,8 @@ struct DataGroupParsingTests {
 
     // MARK: - DataGroupId
 
-    @Test("DataGroupId file IDs are correct")
-    func dataGroupFileIDs() {
+    @Test
+    func `DataGroupId file IDs are correct`() {
         #expect(DataGroupId.com.fileID == Data([0x01, 0x1E]))
         #expect(DataGroupId.sod.fileID == Data([0x01, 0x1D]))
         #expect(DataGroupId.dg1.fileID == Data([0x01, 0x01]))
@@ -311,8 +311,8 @@ struct DataGroupParsingTests {
         #expect(DataGroupId.dg15.fileID == Data([0x01, 0x0F]))
     }
 
-    @Test("DataGroupId TLV tags are correct")
-    func dataGroupTLVTags() {
+    @Test
+    func `DataGroupId TLV tags are correct`() {
         #expect(DataGroupId.com.tlvTag == 0x60)
         #expect(DataGroupId.sod.tlvTag == 0x77)
         #expect(DataGroupId.dg1.tlvTag == 0x61)
@@ -324,8 +324,8 @@ struct DataGroupParsingTests {
         #expect(DataGroupId.dg15.tlvTag == 0x6F)
     }
 
-    @Test("All DataGroupId cases have names")
-    func dataGroupNames() {
+    @Test
+    func `All DataGroupId cases have names`() {
         for dgId in DataGroupId.allCases {
             #expect(!dgId.name.isEmpty, "\(dgId) should have a non-empty name")
         }
@@ -333,8 +333,8 @@ struct DataGroupParsingTests {
 
     // MARK: - PassportModel
 
-    @Test("PassportModel stores raw data groups")
-    func passportModelRawStorage() {
+    @Test
+    func `PassportModel stores raw data groups`() {
         let rawData = Data([0x01, 0x02, 0x03])
         let model = PassportModel(
             ldsVersion: "0107",
@@ -364,8 +364,8 @@ struct DataGroupParsingTests {
 
     // MARK: - Passport APDU Construction
 
-    @Test("SELECT eMRTD application APDU")
-    func selectPassportAPDU() {
+    @Test
+    func `SELECT eMRTD application APDU`() {
         let apdu = CommandAPDU.selectPassportApplication()
         #expect(apdu.cla == 0x00)
         #expect(apdu.ins == 0xA4)
@@ -374,8 +374,8 @@ struct DataGroupParsingTests {
         #expect(apdu.data == Data([0xA0, 0x00, 0x00, 0x02, 0x47, 0x10, 0x01]))
     }
 
-    @Test("SELECT EF APDU")
-    func selectEFAPDU() {
+    @Test
+    func `SELECT EF APDU`() {
         let apdu = CommandAPDU.selectEF(id: DataGroupId.dg1.fileID)
         #expect(apdu.ins == 0xA4)
         #expect(apdu.p1 == 0x02)
@@ -383,16 +383,16 @@ struct DataGroupParsingTests {
         #expect(apdu.data == Data([0x01, 0x01]))
     }
 
-    @Test("GET CHALLENGE APDU")
-    func getChallengeAPDU() {
+    @Test
+    func `GET CHALLENGE APDU`() {
         let apdu = CommandAPDU.getChallenge()
         #expect(apdu.cla == 0x00)
         #expect(apdu.ins == 0x84)
         #expect(apdu.le == 0x08)
     }
 
-    @Test("MUTUAL AUTHENTICATE APDU")
-    func mutualAuthAPDU() {
+    @Test
+    func `MUTUAL AUTHENTICATE APDU`() {
         let data = Data(repeating: 0xAA, count: 40)
         let apdu = CommandAPDU.mutualAuthenticate(data: data)
         #expect(apdu.ins == 0x82)
@@ -400,8 +400,8 @@ struct DataGroupParsingTests {
         #expect(apdu.le == 0x28)
     }
 
-    @Test("READ BINARY chunk APDU with offset")
-    func readBinaryChunkAPDU() {
+    @Test
+    func `READ BINARY chunk APDU with offset`() {
         let apdu = CommandAPDU.readBinaryChunk(offset: 0x0100, length: 0xA0)
         #expect(apdu.ins == 0xB0)
         #expect(apdu.p1 == 0x01) // high byte of offset
@@ -409,8 +409,8 @@ struct DataGroupParsingTests {
         #expect(apdu.le == 0xA0) // length
     }
 
-    @Test("READ BINARY chunk APDU at offset 0")
-    func readBinaryChunkAtZero() {
+    @Test
+    func `READ BINARY chunk APDU at offset 0`() {
         let apdu = CommandAPDU.readBinaryChunk(offset: 0, length: 4)
         #expect(apdu.p1 == 0x00)
         #expect(apdu.p2 == 0x00)

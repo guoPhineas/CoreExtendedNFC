@@ -51,13 +51,8 @@ enum CardInfoRefiner {
         initialAID: String?,
         historicalBytes: Data?
     ) -> CardType? {
-        let normalizedAID = normalizeAID(initialAID)
-
-        if normalizedAID == PassportConstants.eMRTDAID.hexString {
-            return .ePassport
-        }
-        if normalizedAID == Type4Constants.ndefAID.hexString {
-            return .type4NDEF
+        if let hintedType = ISO7816Application.match(aid: initialAID)?.hintedCardType {
+            return hintedType
         }
 
         if let historicalBytes {
@@ -114,13 +109,5 @@ enum CardInfoRefiner {
             idm: info.idm,
             icManufacturer: info.icManufacturer
         )
-    }
-
-    private static func normalizeAID(_ aid: String?) -> String {
-        aid?
-            .replacingOccurrences(of: " ", with: "")
-            .replacingOccurrences(of: "<", with: "")
-            .replacingOccurrences(of: ">", with: "")
-            .uppercased() ?? ""
     }
 }

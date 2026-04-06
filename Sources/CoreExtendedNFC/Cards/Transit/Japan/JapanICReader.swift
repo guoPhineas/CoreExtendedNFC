@@ -110,13 +110,12 @@ public struct JapanICReader: Sendable {
         let usageType = block[JapanICConstants.historyUsageType]
 
         // Classify transaction type
-        let txType: TransactionType
-        if JapanICConstants.topupUsageTypes.contains(usageType) {
-            txType = .topup
+        let txType: TransactionType = if JapanICConstants.topupUsageTypes.contains(usageType) {
+            .topup
         } else if JapanICConstants.purchaseUsageTypes.contains(usageType) {
-            txType = .purchase
+            .purchase
         } else {
-            txType = .trip
+            .trip
         }
 
         // Parse date: 2 bytes at offset 4, packed as year(7) month(4) day(5)

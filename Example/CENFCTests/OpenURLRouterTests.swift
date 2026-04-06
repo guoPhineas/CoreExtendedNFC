@@ -3,8 +3,8 @@ import Foundation
 import Testing
 
 struct OpenURLRouterTests {
-    @Test("Known file extensions route to the matching tabs")
-    func routesKnownExtensions() throws {
+    @Test
+    func `Known file extensions route to the matching tabs`() throws {
         let scanURL = try ScanRecordDocument.exportToFile(makeScanRecord())
         let ndefURL = try NDEFDocument.exportToFile(makeNDEFRecord())
         let passportURL = try PassportDocument.exportToFile(makePassportRecord())
@@ -14,8 +14,8 @@ struct OpenURLRouterTests {
         #expect(OpenURLRouter.destination(for: passportURL) == .passport)
     }
 
-    @Test("Generic property list files are detected by payload")
-    func inspectsPropertyListPayload() throws {
+    @Test
+    func `Generic property list files are detected by payload`() throws {
         let directory = FileManager.default.temporaryDirectory
 
         let scanURL = directory.appendingPathComponent(UUID().uuidString).appendingPathExtension("plist")
@@ -32,8 +32,8 @@ struct OpenURLRouterTests {
         #expect(OpenURLRouter.destination(for: passportURL) == .passport)
     }
 
-    @Test("Files without a recognized extension still fall back to payload inspection")
-    func fallsBackWithoutRecognizedExtension() throws {
+    @Test
+    func `Files without a recognized extension still fall back to payload inspection`() throws {
         let url = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try NDEFDocument.export(makeNDEFRecord()).write(to: url, options: .atomic)
 

@@ -114,7 +114,12 @@ class CardDetailViewController: StackScrollController {
             if !ats.historicalBytes.isEmpty { lines.append("\(String(localized: "ATS Historical Bytes")): \(ats.historicalBytes.hexString)") }
         }
         if let hist = record.cardInfo.historicalBytes, !hist.isEmpty { lines.append("\(String(localized: "Historical Bytes")): \(hist.hexString)") }
-        if let aid = record.cardInfo.initialSelectedAID, !aid.isEmpty { lines.append("\(String(localized: "Initial Selected AID")): \(aid)") }
+        if let aid = record.cardInfo.initialSelectedAID, !aid.isEmpty {
+            lines.append("\(String(localized: "Initial Selected AID")): \(aid)")
+            if let application = record.cardInfo.knownISO7816Application {
+                lines.append("\(String(localized: "Known ISO 7816 Application")): \(application.displayName)")
+            }
+        }
         if let sysCode = record.cardInfo.systemCode { lines.append("\(String(localized: "System Code")): \(sysCode.hexString)") }
         if let idm = record.cardInfo.idm { lines.append("\(String(localized: "IDm")): \(idm.hexString)") }
         if let icMfr = record.cardInfo.icManufacturer { lines.append("\(String(localized: "IC Manufacturer")): \(String(format: "0x%02X (%d)", icMfr, icMfr))") }
@@ -249,6 +254,13 @@ class CardDetailViewController: StackScrollController {
                 description: String(localized: "Application Identifier that responded to ISO 7816 SELECT on first contact."),
                 value: aid
             )
+            if let application = record.cardInfo.knownISO7816Application {
+                addInfoRow(
+                    icon: "list.bullet.rectangle", title: String(localized: "Known ISO 7816 Application"),
+                    description: application.note,
+                    value: application.displayName
+                )
+            }
         }
 
         addSectionFooter(String(localized: "ISO 14443 protocol parameters detected during card identification."))

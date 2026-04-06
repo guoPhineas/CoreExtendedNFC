@@ -72,8 +72,8 @@ struct DG14ParserTests {
 
     // MARK: - id-PK-DH / id-PK-ECDH Classification
 
-    @Test("id-PK-ECDH (0.4.0.127.0.7.2.2.1.2) classified as ChipAuthenticationPublicKeyInfo")
-    func idPKECDH() throws {
+    @Test
+    func `id-PK-ECDH (0.4.0.127.0.7.2.2.1.2) classified as ChipAuthenticationPublicKeyInfo`() throws {
         let dg14 = buildDG14(sequences: [
             buildCAPubKeySequence(oid: "0.4.0.127.0.7.2.2.1.2"),
         ])
@@ -87,8 +87,8 @@ struct DG14ParserTests {
         #expect(result.terminalAuthInfos.isEmpty)
     }
 
-    @Test("id-PK-DH (0.4.0.127.0.7.2.2.1.1) classified as ChipAuthenticationPublicKeyInfo")
-    func idPKDH() throws {
+    @Test
+    func `id-PK-DH (0.4.0.127.0.7.2.2.1.1) classified as ChipAuthenticationPublicKeyInfo`() throws {
         let dg14 = buildDG14(sequences: [
             buildCAPubKeySequence(oid: "0.4.0.127.0.7.2.2.1.1"),
         ])
@@ -97,8 +97,8 @@ struct DG14ParserTests {
         #expect(result.chipAuthPublicKeyInfos[0].protocolOID == "0.4.0.127.0.7.2.2.1.1")
     }
 
-    @Test("id-PK-ECDH with keyID is preserved")
-    func idPKECDHWithKeyID() throws {
+    @Test
+    func `id-PK-ECDH with keyID is preserved`() throws {
         let dg14 = buildDG14(sequences: [
             buildCAPubKeySequence(oid: "0.4.0.127.0.7.2.2.1.2", keyID: 1),
         ])
@@ -107,8 +107,8 @@ struct DG14ParserTests {
         #expect(result.chipAuthPublicKeyInfos[0].keyID == 1)
     }
 
-    @Test("SubjectPublicKeyInfo stored as full DER (starts with 0x30)")
-    func subjectPublicKeyIsDER() throws {
+    @Test
+    func `SubjectPublicKeyInfo stored as full DER (starts with 0x30)`() throws {
         let dg14 = buildDG14(sequences: [
             buildCAPubKeySequence(oid: "0.4.0.127.0.7.2.2.1.2"),
         ])
@@ -121,8 +121,8 @@ struct DG14ParserTests {
 
     // MARK: - Terminal Authentication NOT classified as Active Authentication
 
-    @Test("TA OIDs (0.4.0.127.0.7.2.2.2.*) classified as Terminal Authentication, NOT AA")
-    func taOIDsNotAA() throws {
+    @Test
+    func `TA OIDs (0.4.0.127.0.7.2.2.2.*) classified as Terminal Authentication, NOT AA`() throws {
         let taOIDs = [
             "0.4.0.127.0.7.2.2.2.1.1", // id-TA-RSA-v1-5-SHA-1
             "0.4.0.127.0.7.2.2.2.1.2", // id-TA-RSA-v1-5-SHA-256
@@ -147,8 +147,8 @@ struct DG14ParserTests {
 
     // MARK: - Active Authentication — only id-AA (2.23.136.1.1.5)
 
-    @Test("Only id-AA (2.23.136.1.1.5) classified as Active Authentication")
-    func onlyIdAAIsActiveAuth() throws {
+    @Test
+    func `Only id-AA (2.23.136.1.1.5) classified as Active Authentication`() throws {
         let dg14 = buildDG14(sequences: [
             buildInfoSequence(oid: "2.23.136.1.1.5", version: 1),
         ])
@@ -158,8 +158,8 @@ struct DG14ParserTests {
         #expect(result.activeAuthInfos[0].securityProtocol == .aaRSA)
     }
 
-    @Test("AA with signature algorithm OID")
-    func aaWithSignatureAlgorithm() throws {
+    @Test
+    func `AA with signature algorithm OID`() throws {
         // id-AA with ecdsa-plain-SHA256 signature algorithm
         let sigAlgOID = ChipAuthenticationHandler.encodeOID("0.4.0.127.0.7.1.1.4.1.3")
         let oidEncoded = ChipAuthenticationHandler.encodeOID("2.23.136.1.1.5")
@@ -176,8 +176,8 @@ struct DG14ParserTests {
 
     // MARK: - Mixed DG14: PACE + CA + CA Public Key + AA + TA
 
-    @Test("Mixed DG14 with all SecurityInfo types correctly classified")
-    func mixedDG14AllTypes() throws {
+    @Test
+    func `Mixed DG14 with all SecurityInfo types correctly classified`() throws {
         let dg14 = buildDG14(sequences: [
             // PACE-ECDH-GM-AES-128
             buildInfoSequence(oid: "0.4.0.127.0.7.2.2.4.2.2", version: 2,
@@ -218,8 +218,8 @@ struct DG14ParserTests {
 
     // MARK: - SecurityProtocol enum properties
 
-    @Test("SecurityProtocol id-PK properties")
-    func securityProtocolPKProperties() {
+    @Test
+    func `SecurityProtocol id-PK properties`() {
         #expect(SecurityProtocol.pkDH.isChipAuthenticationPublicKey)
         #expect(SecurityProtocol.pkECDH.isChipAuthenticationPublicKey)
         #expect(!SecurityProtocol.pkDH.isPACE)
@@ -227,16 +227,16 @@ struct DG14ParserTests {
         #expect(!SecurityProtocol.pkDH.isActiveAuthentication)
     }
 
-    @Test("SecurityProtocol TA properties")
-    func securityProtocolTAProperties() {
+    @Test
+    func `SecurityProtocol TA properties`() {
         #expect(SecurityProtocol.taRSAv15SHA1.isTerminalAuthentication)
         #expect(SecurityProtocol.taECDSASHA256.isTerminalAuthentication)
         #expect(!SecurityProtocol.taRSAv15SHA1.isActiveAuthentication)
         #expect(!SecurityProtocol.taECDSASHA256.isPACE)
     }
 
-    @Test("SecurityProtocol AA properties")
-    func securityProtocolAAProperties() {
+    @Test
+    func `SecurityProtocol AA properties`() {
         #expect(SecurityProtocol.aaRSA.isActiveAuthentication)
         #expect(!SecurityProtocol.aaRSA.isTerminalAuthentication)
         #expect(!SecurityProtocol.aaRSA.isPACE)
@@ -245,8 +245,8 @@ struct DG14ParserTests {
 
     // MARK: - Edge Cases
 
-    @Test("Unknown OID is silently ignored (not classified into any bucket)")
-    func unknownOIDIgnored() throws {
+    @Test
+    func `Unknown OID is silently ignored (not classified into any bucket)`() throws {
         let dg14 = buildDG14(sequences: [
             buildInfoSequence(oid: "1.2.3.4.5.6.7.8.9", version: 1),
         ])
@@ -258,8 +258,8 @@ struct DG14ParserTests {
         #expect(result.terminalAuthInfos.isEmpty)
     }
 
-    @Test("All 8 CA OIDs correctly classified")
-    func allCAOIDs() throws {
+    @Test
+    func `All 8 CA OIDs correctly classified`() throws {
         let caOIDs = [
             "0.4.0.127.0.7.2.2.3.1.1", // DH-3DES
             "0.4.0.127.0.7.2.2.3.1.2", // DH-AES-128

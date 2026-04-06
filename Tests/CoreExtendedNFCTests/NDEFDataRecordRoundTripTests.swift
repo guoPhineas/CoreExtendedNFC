@@ -51,8 +51,8 @@ private let fixtureEmpty = TestNDEFDataRecord(
 // MARK: - Tests
 
 struct NDEFDataRecordRoundTripTests {
-    @Test("Text NDEF record round-trips through PropertyList")
-    func textRecordRoundTrip() throws {
+    @Test
+    func `Text NDEF record round-trips through PropertyList`() throws {
         let data = try PropertyListEncoder().encode(fixtureText)
         let decoded = try PropertyListDecoder().decode(TestNDEFDataRecord.self, from: data)
 
@@ -61,8 +61,8 @@ struct NDEFDataRecordRoundTripTests {
         #expect(decoded.messageData == fixtureText.messageData)
     }
 
-    @Test("URI NDEF record round-trips through PropertyList")
-    func uriRecordRoundTrip() throws {
+    @Test
+    func `URI NDEF record round-trips through PropertyList`() throws {
         let data = try PropertyListEncoder().encode(fixtureURI)
         let decoded = try PropertyListDecoder().decode(TestNDEFDataRecord.self, from: data)
 
@@ -70,8 +70,8 @@ struct NDEFDataRecordRoundTripTests {
         #expect(decoded.name == "Example Site")
     }
 
-    @Test("Empty messageData round-trips without error")
-    func emptyRecordRoundTrip() throws {
+    @Test
+    func `Empty messageData round-trips without error`() throws {
         let data = try PropertyListEncoder().encode(fixtureEmpty)
         let decoded = try PropertyListDecoder().decode(TestNDEFDataRecord.self, from: data)
 
@@ -79,8 +79,8 @@ struct NDEFDataRecordRoundTripTests {
         #expect(decoded.messageData.isEmpty)
     }
 
-    @Test("NDEFMessage data survives encode → decode → parse")
-    func messageParseAfterRoundTrip() throws {
+    @Test
+    func `NDEFMessage data survives encode → decode → parse`() throws {
         let data = try PropertyListEncoder().encode(fixtureText)
         let decoded = try PropertyListDecoder().decode(TestNDEFDataRecord.self, from: data)
 
@@ -96,8 +96,8 @@ struct NDEFDataRecordRoundTripTests {
         }
     }
 
-    @Test("URI NDEFMessage data survives encode → decode → parse")
-    func uriParseAfterRoundTrip() throws {
+    @Test
+    func `URI NDEFMessage data survives encode → decode → parse`() throws {
         let data = try PropertyListEncoder().encode(fixtureURI)
         let decoded = try PropertyListDecoder().decode(TestNDEFDataRecord.self, from: data)
 
@@ -112,8 +112,8 @@ struct NDEFDataRecordRoundTripTests {
         }
     }
 
-    @Test("File-based round-trip writes and reads back identical record")
-    func fileRoundTrip() throws {
+    @Test
+    func `File-based round-trip writes and reads back identical record`() throws {
         let original = fixtureText
         let encoded = try PropertyListEncoder().encode(original)
 
@@ -128,8 +128,8 @@ struct NDEFDataRecordRoundTripTests {
         #expect(decoded == original)
     }
 
-    @Test("JSON-encoded record round-trips (NDEFStore uses JSON)")
-    func jsonRoundTrip() throws {
+    @Test
+    func `JSON-encoded record round-trips (NDEFStore uses JSON)`() throws {
         let encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .iso8601
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
@@ -148,8 +148,8 @@ struct NDEFDataRecordRoundTripTests {
         #expect(abs(decoded.date.timeIntervalSince(original.date)) < 1)
     }
 
-    @Test("Multi-record NDEFMessage round-trips through the record model")
-    func multiRecordRoundTrip() throws {
+    @Test
+    func `Multi-record NDEFMessage round-trips through the record model`() throws {
         let records: [NDEFRecord] = [
             .uri("https://example.com"),
             .text("Hello", languageCode: "en"),
@@ -174,8 +174,8 @@ struct NDEFDataRecordRoundTripTests {
         }
     }
 
-    @Test("Smart Poster NDEFMessage round-trips")
-    func smartPosterRoundTrip() throws {
+    @Test
+    func `Smart Poster NDEFMessage round-trips`() throws {
         let record = NDEFRecord.smartPoster(uri: "https://example.com", title: "Example")
         let message = NDEFMessage(records: [record])
 
@@ -196,8 +196,8 @@ struct NDEFDataRecordRoundTripTests {
         }
     }
 
-    @Test("MIME record round-trips")
-    func mimeRoundTrip() throws {
+    @Test
+    func `MIME record round-trips`() throws {
         let record = NDEFRecord.mime(type: "application/json", data: Data("{\"key\":1}".utf8))
         let message = NDEFMessage(records: [record])
 
@@ -217,8 +217,8 @@ struct NDEFDataRecordRoundTripTests {
         }
     }
 
-    @Test("External type record round-trips")
-    func externalRoundTrip() throws {
+    @Test
+    func `External type record round-trips`() throws {
         let record = NDEFRecord.external(type: "example.com:mytype", data: Data([0xAA, 0xBB, 0xCC]))
         let message = NDEFMessage(records: [record])
 
@@ -238,8 +238,8 @@ struct NDEFDataRecordRoundTripTests {
         }
     }
 
-    @Test("Array of records round-trips through JSON (simulates NDEFStore)")
-    func storeArrayRoundTrip() throws {
+    @Test
+    func `Array of records round-trips through JSON (simulates NDEFStore)`() throws {
         let encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .iso8601
         let decoder = JSONDecoder()

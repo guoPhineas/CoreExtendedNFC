@@ -12,8 +12,8 @@ import Testing
 struct KSX6924Tests {
     // MARK: - AID Selection
 
-    @Test("Select T-Money AID successfully")
-    func selectTMoney() async throws {
+    @Test
+    func `Select T-Money AID successfully`() async throws {
         let transport = MockTransport()
         // SELECT succeeds with FCI containing purse info
         let fci = buildFCI(serial: "1234567890ABCDEF", issueDate: "20200101", expiryDate: "20301231")
@@ -31,8 +31,8 @@ struct KSX6924Tests {
         #expect(result.serialNumber == "1234567890ABCDEF")
     }
 
-    @Test("Falls back to Cashbee when T-Money fails")
-    func fallbackToCashbee() async throws {
+    @Test
+    func `Falls back to Cashbee when T-Money fails`() async throws {
         let transport = MockTransport()
         let fci = buildFCI(serial: "AABBCCDD11223344", issueDate: "20210601", expiryDate: "20310601")
         transport.apduResponses = [
@@ -48,8 +48,8 @@ struct KSX6924Tests {
         #expect(result.balanceRaw == 5000)
     }
 
-    @Test("All AIDs fail throws error")
-    func allAIDsFail() async {
+    @Test
+    func `All AIDs fail throws error`() async {
         let transport = MockTransport()
         // All 4 SELECTs fail
         transport.apduResponses = [
@@ -67,8 +67,8 @@ struct KSX6924Tests {
 
     // MARK: - Balance Parsing
 
-    @Test("Parse 4-byte big-endian balance")
-    func parseBalance() async throws {
+    @Test
+    func `Parse 4-byte big-endian balance`() async throws {
         let transport = MockTransport()
         let fci = buildMinimalFCI()
         transport.apduResponses = [
@@ -85,24 +85,24 @@ struct KSX6924Tests {
 
     // MARK: - BCD Date Parsing
 
-    @Test("Parse BCD date 20251231")
-    func parseBCDDate() {
+    @Test
+    func `Parse BCD date 20251231`() throws {
         let data = Data([0x20, 0x25, 0x12, 0x31])
         let date = KSX6924Reader.parseBCDDate(data)
         #expect(date != nil)
 
         let calendar = Calendar(identifier: .gregorian)
-        let components = calendar.dateComponents(
-            in: TimeZone(identifier: "Asia/Seoul")!,
-            from: date!
+        let components = try calendar.dateComponents(
+            in: #require(TimeZone(identifier: "Asia/Seoul")),
+            from: #require(date)
         )
         #expect(components.year == 2025)
         #expect(components.month == 12)
         #expect(components.day == 31)
     }
 
-    @Test("Invalid BCD date returns nil")
-    func invalidBCDDate() {
+    @Test
+    func `Invalid BCD date returns nil`() {
         let data = Data([0x20, 0x25, 0x13, 0x01]) // month 13 invalid
         let date = KSX6924Reader.parseBCDDate(data)
         #expect(date == nil)
@@ -110,8 +110,8 @@ struct KSX6924Tests {
 
     // MARK: - Record Parsing
 
-    @Test("Parse trip transaction record")
-    func parseTripRecord() {
+    @Test
+    func `Parse trip transaction record`() {
         var record = Data(repeating: 0x00, count: 16)
         record[0] = 0x01 // trip
         record[2] = 0x00; record[3] = 0x00; record[4] = 0x13; record[5] = 0x88 // balance 5000
@@ -125,8 +125,8 @@ struct KSX6924Tests {
         #expect(tx?.amount == 1200)
     }
 
-    @Test("Parse topup transaction record")
-    func parseTopupRecord() {
+    @Test
+    func `Parse topup transaction record`() {
         var record = Data(repeating: 0x00, count: 16)
         record[0] = 0x02 // topup
         record[2] = 0x00; record[3] = 0x00; record[4] = 0x27; record[5] = 0x10 // balance 10000

@@ -12,8 +12,8 @@ import Foundation
 import Testing
 
 struct DESFireResponseParsingTests {
-    @Test("GET_APPLICATION_IDS rejects trailing partial AID")
-    func getApplicationIDsRejectsPartialTrailingAid() async {
+    @Test
+    func `GET_APPLICATION_IDS rejects trailing partial AID`() async {
         let mock = MockTransport()
         mock.apduResponses = [
             ResponseAPDU(data: Data([0x01, 0x00, 0x00, 0x02]), sw1: 0x91, sw2: 0x00),
@@ -25,8 +25,8 @@ struct DESFireResponseParsingTests {
         }
     }
 
-    @Test("GET_VALUE rejects trailing bytes")
-    func getValueRejectsTrailingBytes() async {
+    @Test
+    func `GET_VALUE rejects trailing bytes`() async {
         let mock = MockTransport()
         mock.apduResponses = [
             ResponseAPDU(data: Data([0x78, 0x56, 0x34, 0x12, 0x00]), sw1: 0x91, sw2: 0x00),
@@ -38,8 +38,8 @@ struct DESFireResponseParsingTests {
         }
     }
 
-    @Test("GET_VALUE decodes exact 4-byte signed little-endian payload")
-    func getValueDecodesExactSignedValue() async throws {
+    @Test
+    func `GET_VALUE decodes exact 4-byte signed little-endian payload`() async throws {
         let mock = MockTransport()
         mock.apduResponses = [
             ResponseAPDU(data: Data([0xEF, 0xCD, 0xAB, 0x89]), sw1: 0x91, sw2: 0x00),
@@ -54,8 +54,8 @@ struct DESFireResponseParsingTests {
         #expect(mock.sentAPDUs[0].data == Data([0x02]))
     }
 
-    @Test("GET_VERSION rejects responses longer than 28 bytes")
-    func versionInfoRejectsTrailingBytes() throws {
+    @Test
+    func `GET_VERSION rejects responses longer than 28 bytes`() throws {
         let data = Data(repeating: 0x00, count: 29)
         do {
             _ = try DESFireVersionInfo(data: data)

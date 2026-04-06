@@ -16,14 +16,14 @@ import Testing
 struct FeliCaTests {
     // MARK: - Frame Assembly
 
-    @Test("Block list element 2-byte format for small block numbers")
-    func blockListElement2Byte() {
+    @Test
+    func `Block list element 2-byte format for small block numbers`() {
         let element = FeliCaFrame.blockListElement(blockNumber: 5)
         #expect(element == Data([0x80, 0x05]))
     }
 
-    @Test("Block list element 3-byte format for large block numbers")
-    func blockListElement3Byte() {
+    @Test
+    func `Block list element 3-byte format for large block numbers`() {
         let element = FeliCaFrame.blockListElement(blockNumber: 0x0100)
         #expect(element.count == 3)
         #expect(element[0] == 0x00) // service index
@@ -31,22 +31,22 @@ struct FeliCaTests {
         #expect(element[2] == 0x00) // low byte
     }
 
-    @Test("Block list element 0 (first block)")
-    func blockListElementZero() {
+    @Test
+    func `Block list element 0 (first block)`() {
         let element = FeliCaFrame.blockListElement(blockNumber: 0)
         #expect(element == Data([0x80, 0x00]))
     }
 
-    @Test("Block list element encodes service index in 2-byte format")
-    func blockListElementServiceIndex() {
+    @Test
+    func `Block list element encodes service index in 2-byte format`() {
         let element = FeliCaFrame.blockListElement(blockNumber: 5, serviceIndex: 3)
         #expect(element == Data([0x83, 0x05]))
     }
 
     // MARK: - Attribute Info Parsing
 
-    @Test("Parse valid attribute info block")
-    func parseAttributeInfo() throws {
+    @Test
+    func `Parse valid attribute info block`() throws {
         // Version=1.0, nbr=4, nbw=1, nmaxb=0x000D (13),
         // reserved, writeFlag=0, rwFlag=1, ndefLen=0x000042 (66)
         var block = Data(repeating: 0x00, count: 16)
@@ -78,8 +78,8 @@ struct FeliCaTests {
         #expect(info.ndefLength == 0x42)
     }
 
-    @Test("Attribute info with bad checksum throws")
-    func badChecksum() {
+    @Test
+    func `Attribute info with bad checksum throws`() {
         var block = Data(repeating: 0x00, count: 16)
         block[14] = 0xFF // wrong checksum
         block[15] = 0xFF
@@ -89,8 +89,8 @@ struct FeliCaTests {
         }
     }
 
-    @Test("Attribute info with short data throws")
-    func shortData() {
+    @Test
+    func `Attribute info with short data throws`() {
         #expect(throws: NFCError.self) {
             _ = try FeliCaAttributeInfo(data: Data(repeating: 0, count: 10))
         }
@@ -98,20 +98,20 @@ struct FeliCaTests {
 
     // MARK: - Memory Model
 
-    @Test("FeliCa block size is 16")
-    func blockSize() {
+    @Test
+    func `FeliCa block size is 16`() {
         #expect(FeliCaMemory.blockSize == 16)
     }
 
-    @Test("Command codes")
-    func commandCodes() {
+    @Test
+    func `Command codes`() {
         #expect(FeliCaFrame.POLLING == 0x04)
         #expect(FeliCaFrame.CHECK == 0x06)
         #expect(FeliCaFrame.UPDATE == 0x08)
     }
 
-    @Test("Probe common FeliCa services returns detected service metadata")
-    func probeCommonServices() async throws {
+    @Test
+    func `Probe common FeliCa services returns detected service metadata`() async throws {
         let transport = MockFeliCaServiceTransport(
             serviceVersions: [
                 FeliCaType3Reader.readServiceCode: Data([0x00, 0x10]),
@@ -126,8 +126,8 @@ struct FeliCaTests {
         #expect(services.contains(where: { $0.serviceCode == Data([0x8B, 0x00]) && $0.label == "Random Read-Only Service #2" }))
     }
 
-    @Test("Plain service reads stop after the last readable block on each service")
-    func readPlainServicesSequentially() async throws {
+    @Test
+    func `Plain service reads stop after the last readable block on each service`() async throws {
         let serviceCode = Data([0x8B, 0x00])
         let transport = MockFeliCaServiceTransport(
             serviceVersions: [serviceCode: Data([0x00, 0x21])],
@@ -154,8 +154,8 @@ struct FeliCaTests {
         ])
     }
 
-    @Test("Plain service reads batch multiple services and split on boundary failures")
-    func readPlainServicesBatchedAcrossServices() async {
+    @Test
+    func `Plain service reads batch multiple services and split on boundary failures`() async {
         let serviceA = Data([0x8B, 0x00])
         let serviceB = Data([0x4B, 0x00])
         let transport = MockFeliCaServiceTransport(

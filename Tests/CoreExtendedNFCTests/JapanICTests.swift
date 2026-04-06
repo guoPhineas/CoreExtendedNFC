@@ -12,8 +12,8 @@ import Testing
 struct JapanICTests {
     // MARK: - Balance Reading
 
-    @Test("Read balance from Japan IC card")
-    func readBalance() async throws {
+    @Test
+    func `Read balance from Japan IC card`() async throws {
         // Build a 16-byte balance block with 1,234 yen at offset 0x0A (LE)
         var balanceBlock = Data(repeating: 0x00, count: 16)
         balanceBlock[0x0A] = 0xD2 // 1234 & 0xFF
@@ -35,8 +35,8 @@ struct JapanICTests {
         #expect(result.transactions.isEmpty)
     }
 
-    @Test("Read balance and history")
-    func readBalanceAndHistory() async throws {
+    @Test
+    func `Read balance and history`() async throws {
         var balanceBlock = Data(repeating: 0x00, count: 16)
         balanceBlock[0x0A] = 0xE8 // 500 & 0xFF = 0xF4... wait, 500 = 0x01F4
         balanceBlock[0x0A] = 0xF4
@@ -81,8 +81,8 @@ struct JapanICTests {
         #expect(tx.exitStation == "0456")
     }
 
-    @Test("System code mismatch throws error")
-    func systemCodeMismatch() async {
+    @Test
+    func `System code mismatch throws error`() async {
         let transport = MockFeliCaServiceTransport(
             serviceVersions: [:],
             systemCode: Data([0x88, 0xB4]) // wrong system code
@@ -94,8 +94,8 @@ struct JapanICTests {
         }
     }
 
-    @Test("Balance service unavailable throws error")
-    func balanceServiceUnavailable() async {
+    @Test
+    func `Balance service unavailable throws error`() async {
         let transport = MockFeliCaServiceTransport(
             serviceVersions: [Data([0x8B, 0x00]): Data([0xFF, 0xFF])], // service not found
             systemCode: Data([0x00, 0x03])
@@ -109,8 +109,8 @@ struct JapanICTests {
 
     // MARK: - Date Parsing
 
-    @Test("Parse packed date from history block")
-    func parseDateField() {
+    @Test
+    func `Parse packed date from history block`() throws {
         var block = Data(repeating: 0x00, count: 16)
         // 2025-01-20: year=25, month=1, day=20
         // packed = (25 << 9) | (1 << 5) | 20 = 12800 | 32 | 20 = 12852 = 0x3234
@@ -121,17 +121,17 @@ struct JapanICTests {
         #expect(date != nil)
 
         let calendar = Calendar(identifier: .gregorian)
-        let components = calendar.dateComponents(
-            in: TimeZone(identifier: "Asia/Tokyo")!,
-            from: date!
+        let components = try calendar.dateComponents(
+            in: #require(TimeZone(identifier: "Asia/Tokyo")),
+            from: #require(date)
         )
         #expect(components.year == 2025)
         #expect(components.month == 1)
         #expect(components.day == 20)
     }
 
-    @Test("Parse date with invalid month returns nil")
-    func parseDateInvalidMonth() {
+    @Test
+    func `Parse date with invalid month returns nil`() {
         var block = Data(repeating: 0x00, count: 16)
         // month=0 is invalid: (25 << 9) | (0 << 5) | 15 = 12800 | 0 | 15 = 12815 = 0x320F
         block[4] = 0x32
@@ -143,8 +143,8 @@ struct JapanICTests {
 
     // MARK: - History Block Parsing
 
-    @Test("Topup transaction type detection")
-    func topupTypeDetection() {
+    @Test
+    func `Topup transaction type detection`() {
         var block = Data(repeating: 0x00, count: 16)
         block[1] = 0x02 // top-up usage type
         block[4] = 0x32 // valid date
@@ -158,8 +158,8 @@ struct JapanICTests {
         #expect(tx?.balanceAfter == 1000)
     }
 
-    @Test("Purchase transaction type detection")
-    func purchaseTypeDetection() {
+    @Test
+    func `Purchase transaction type detection`() {
         var block = Data(repeating: 0x00, count: 16)
         block[1] = 0x46 // purchase usage type
         block[4] = 0x32
@@ -173,8 +173,8 @@ struct JapanICTests {
         #expect(tx?.balanceAfter == 100)
     }
 
-    @Test("Empty history block is skipped")
-    func emptyBlockSkipped() {
+    @Test
+    func `Empty history block is skipped`() {
         let block = Data(repeating: 0x00, count: 16)
         // parseHistoryBlock still returns a transaction (all zeros) but
         // the reader's readHistory() skips all-zero blocks.
@@ -183,8 +183,8 @@ struct JapanICTests {
         #expect(tx != nil)
     }
 
-    @Test("Zero balance is valid")
-    func zeroBalance() async throws {
+    @Test
+    func `Zero balance is valid`() async throws {
         let balanceBlock = Data(repeating: 0x00, count: 16)
 
         let transport = MockFeliCaServiceTransport(

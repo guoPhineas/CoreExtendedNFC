@@ -9,53 +9,53 @@ import Foundation
 import Testing
 
 struct HexUtilsTests {
-    @Test("Data to hex string")
-    func dataToHex() {
+    @Test
+    func `Data to hex string`() {
         let data = Data([0x0A, 0x1B, 0x2C])
         #expect(data.hexString == "0A1B2C")
     }
 
-    @Test("Data to hex dump with spaces")
-    func dataToHexDump() {
+    @Test
+    func `Data to hex dump with spaces`() {
         let data = Data([0x0A, 0x1B, 0x2C])
         #expect(data.hexDump == "0A 1B 2C")
     }
 
-    @Test("Empty data to hex")
-    func emptyHex() {
+    @Test
+    func `Empty data to hex`() {
         let data = Data()
         #expect(data.hexString == "")
         #expect(data.hexDump == "")
     }
 
-    @Test("Hex string to data")
-    func hexToData() {
+    @Test
+    func `Hex string to data`() {
         let data = Data(hexString: "0A1B2C")
         #expect(data == Data([0x0A, 0x1B, 0x2C]))
     }
 
-    @Test("Hex string with spaces to data")
-    func hexWithSpaces() {
+    @Test
+    func `Hex string with spaces to data`() {
         let data = Data(hexString: "0A 1B 2C")
         #expect(data == Data([0x0A, 0x1B, 0x2C]))
     }
 
-    @Test("Invalid hex string returns nil")
-    func invalidHex() {
+    @Test
+    func `Invalid hex string returns nil`() {
         #expect(Data(hexString: "ZZ") == nil)
         #expect(Data(hexString: "0A1") == nil) // odd length
     }
 
-    @Test("Round-trip hex conversion")
-    func roundTrip() {
+    @Test
+    func `Round-trip hex conversion`() {
         let original = Data([0x00, 0xFF, 0x80, 0x7F, 0x01])
         let hex = original.hexString
         let restored = Data(hexString: hex)
         #expect(restored == original)
     }
 
-    @Test("Formatted hex dump has offsets")
-    func formattedDump() {
+    @Test
+    func `Formatted hex dump has offsets`() {
         let data = Data(repeating: 0xAA, count: 20)
         let formatted = data.hexDumpFormatted
         #expect(formatted.contains("0000:"))
@@ -64,32 +64,32 @@ struct HexUtilsTests {
 }
 
 struct ByteUtilsTests {
-    @Test("UInt16 big-endian")
-    func uint16BE() {
+    @Test
+    func `UInt16 big-endian`() {
         let data = Data([0x01, 0x02])
         #expect(data.uint16BE == 0x0102)
     }
 
-    @Test("UInt16 little-endian")
-    func uint16LE() {
+    @Test
+    func `UInt16 little-endian`() {
         let data = Data([0x01, 0x02])
         #expect(data.uint16LE == 0x0201)
     }
 
-    @Test("UInt32 big-endian")
-    func uint32BE() {
+    @Test
+    func `UInt32 big-endian`() {
         let data = Data([0x01, 0x02, 0x03, 0x04])
         #expect(data.uint32BE == 0x0102_0304)
     }
 
-    @Test("UInt32 little-endian")
-    func uint32LE() {
+    @Test
+    func `UInt32 little-endian`() {
         let data = Data([0x01, 0x02, 0x03, 0x04])
         #expect(data.uint32LE == 0x0403_0201)
     }
 
-    @Test("Short data returns 0")
-    func shortData() {
+    @Test
+    func `Short data returns 0`() {
         let data = Data([0x01])
         #expect(data.uint16BE == 0)
         #expect(data.uint32BE == 0)
@@ -97,28 +97,28 @@ struct ByteUtilsTests {
 }
 
 struct ParityTests {
-    @Test("Odd parity of 0x00 is 1 (0 bits set, need 1 to make odd)")
-    func parityZero() {
+    @Test
+    func `Odd parity of 0x00 is 1 (0 bits set, need 1 to make odd)`() {
         #expect(Parity.odd(0x00) == 1)
     }
 
-    @Test("Odd parity of 0x01 is 0 (1 bit set, already odd)")
-    func parityOne() {
+    @Test
+    func `Odd parity of 0x01 is 0 (1 bit set, already odd)`() {
         #expect(Parity.odd(0x01) == 0)
     }
 
-    @Test("Odd parity of 0xFF is 1 (8 bits set, need 1 to make odd)")
-    func parityAllOnes() {
+    @Test
+    func `Odd parity of 0xFF is 1 (8 bits set, need 1 to make odd)`() {
         #expect(Parity.odd(0xFF) == 1)
     }
 
-    @Test("Odd parity of 0x03 is 1 (2 bits set, need 1 to make odd)")
-    func parityTwo() {
+    @Test
+    func `Odd parity of 0x03 is 1 (2 bits set, need 1 to make odd)`() {
         #expect(Parity.odd(0x03) == 1)
     }
 
-    @Test("Odd parity bytes")
-    func parityBytes() {
+    @Test
+    func `Odd parity bytes`() {
         let data = Data([0x00, 0x01, 0xFF])
         let result = Parity.oddBytes(data)
         #expect(result[0] == 1) // 0 bits → parity 1

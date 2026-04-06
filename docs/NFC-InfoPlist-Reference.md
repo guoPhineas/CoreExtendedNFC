@@ -40,15 +40,18 @@ These are the merged values collected from public iOS NFC apps and SDKs on GitHu
 <key>com.apple.developer.nfc.readersession.iso7816.select-identifiers</key>
 <array>
 	<string>D2760000850101</string>
+	<string>315041592E5359532E4444463031</string>
 	<string>A0000002471001</string>
 	<string>A0000002472001</string>
 	<string>A000000167455349474E</string>
 	<string>A000000291</string>
+	<string>A00000000386980701</string>
 	<string>A0000004520001</string>
 	<string>D4100000030001</string>
 	<string>D4100000140001</string>
 	<string>D410000029000001</string>
 	<string>D2760000850100</string>
+	<string>F049442E43484E</string>
 	<string>A000000812010208</string>
 	<string>A00000045645444C2D3031</string>
 	<string>00000000000000</string>
@@ -83,14 +86,17 @@ These are the merged values collected from public iOS NFC apps and SDKs on GitHu
 | ---------------------------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
 | `D2760000850101`                   | NFC Forum NDEF Tag Application                                | Standard AID for selecting the NDEF application on Type 4 tags.                                        |
 | `D2760000850100`                   | Related NFC Forum / DESFire-style application selection value | Seen in public iOS NFC configs; often paired with `D2760000850101`.                                    |
+| `315041592E5359532E4444463031`     | EMV Payment System Environment (`1PAY.SYS.DDF01`)             | Standard payment-directory selection AID. Payment-tag workflows on iOS have separate API availability. |
 | `A0000002471001`                   | ICAO eMRTD LDS application                                    | The standard passport / ePassport app AID.                                                             |
 | `A0000002472001`                   | ICAO travel document auxiliary application                    | Commonly included by ID verification SDKs for passports and national ID cards.                         |
 | `A000000167455349474E`             | eSign application                                             | The ASCII tail decodes to `ESIGN`. Common in European eID / signing-card configs.                      |
 | `A000000291`                       | Calypso transit AID prefix                                    | Often used as a prefix-style match for Calypso transit cards.                                          |
+| `A00000000386980701`               | UnionPay payment application                                  | Observed in packaged UnionPay-family iOS apps; exact post-select APDUs are issuer-specific.            |
 | `A0000004520001`                   | Korean transit / stored-value ecosystem application           | Seen in public mobile NFC configs used for Korean transit cards.                                       |
 | `D4100000030001`                   | Korean transit application                                    | Included by passport / identity apps that also support common transit-card detection.                  |
 | `D4100000140001`                   | Korean transit application                                    | Commonly associated with Cashbee-family cards in public NFC examples.                                  |
 | `D410000029000001`                 | Public sample AID from iOS NFC app configs                    | Preserved because it appears in community NFC setups; exact issuer mapping is still unclear.           |
+| `F049442E43484E`                   | China document application (observed)                         | Seen in packaged Chinese iOS apps; likely document-related, inferred from the ASCII tail `ID.CHN`.     |
 | `A000000812010208`                 | Tangem card application                                       | Documented by `tangem-sdk-ios`.                                                                        |
 | `A00000045645444C2D3031`           | Dutch driving licence application                             | Used by public ID verification SDKs for Dutch mobile document reading.                                 |
 | `00000000000000`                   | Catch-all root / issuer-specific selection value              | Used by several passport / ID SDKs when some documents respond from a root or proprietary app context. |
@@ -113,6 +119,18 @@ These repositories were used to verify real-world iOS NFC plist values:
 - `https://github.com/idnow/de.idnow.ios.sdk.spm`
 - `https://github.com/onfido/onfido-ios-sdk`
 - `https://github.com/batuhanoztrk/react-native-nfc-passport-reader`
+
+## Apple Platform Notes
+
+- Apple documents that `NFCTagReaderSession` / `NFCISO7816Tag` will issue `SELECT` for each AID in `com.apple.developer.nfc.readersession.iso7816.select-identifiers` and expose the first successful one through `initialSelectedAID`.
+- Apple also documents that including `D2760000850101` causes matching DESFire Type 4 tags to be surfaced as `NFCISO7816Tag` instead of `NFCMiFareTag`.
+- Apple documents that payment-tag support uses `NFCPaymentTagReaderSession`, and that API is only available in the EU.
+
+## Handling Guidance
+
+- `A0000002471001` and `D2760000850101` map cleanly to concrete library workflows today (`ePassport` and `Type 4 NDEF`).
+- `315041592E5359532E4444463031`, `A00000000386980701`, and `F049442E43484E` are useful to include in `Info.plist` so the system can surface `initialSelectedAID`, but they should remain generic ISO 7816 cards unless your app implements issuer-specific APDU flows.
+- The example app now surfaces these AIDs as “Known ISO 7816 Application” hints in the scan detail UI, while keeping unsupported payment / document cards on the safe generic path.
 
 ## Recommended Usage
 

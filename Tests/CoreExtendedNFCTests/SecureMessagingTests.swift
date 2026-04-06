@@ -13,8 +13,8 @@ import Foundation
 import Testing
 
 struct SecureMessagingTests {
-    @Test("SecureMessaging identifier delegates to underlying transport")
-    func identifierDelegation() {
+    @Test
+    func `SecureMessaging identifier delegates to underlying transport`() {
         let mockID = Data([0x04, 0x01, 0x02, 0x03])
         let mock = MockTransport(identifier: mockID)
         let ksEnc = Data(repeating: 0x01, count: 16)
@@ -31,8 +31,8 @@ struct SecureMessagingTests {
         #expect(sm.identifier == mockID)
     }
 
-    @Test("SecureMessaging raw send throws unsupportedOperation")
-    func rawSendThrows() async throws {
+    @Test
+    func `SecureMessaging raw send throws unsupportedOperation`() async throws {
         let mock = MockTransport()
         let sm = SecureMessagingTransport(
             transport: mock,
@@ -46,8 +46,8 @@ struct SecureMessagingTests {
         }
     }
 
-    @Test("SecureMessaging protect produces valid APDU with DO'8E MAC")
-    func protectProducesMAC() async throws {
+    @Test
+    func `SecureMessaging protect produces valid APDU with DO'8E MAC`() async throws {
         // Use known session keys to verify the protected APDU contains a DO'8E MAC
         let ksEnc = Data([
             0xAB, 0x94, 0xFD, 0xEC, 0xF2, 0x67, 0x4F, 0xDF,

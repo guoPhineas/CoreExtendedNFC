@@ -17,16 +17,16 @@ struct MRZKeyGeneratorTests {
 
     // ICAO 9303 Part 3, Section 4.9: weighted sum mod 10
 
-    @Test("ICAO check digit for numeric input")
-    func checkDigitNumeric() {
+    @Test
+    func `ICAO check digit for numeric input`() {
         // Known: check digit of "520727" = 3 (weight sum mod 10)
         // 5*7 + 2*3 + 0*1 + 7*7 + 2*3 + 7*1 = 35 + 6 + 0 + 49 + 6 + 7 = 103 → 103 mod 10 = 3
         let digit = MRZKeyGenerator.checkDigit("520727")
         #expect(digit == "3")
     }
 
-    @Test("ICAO check digit for alphanumeric input")
-    func checkDigitAlphanumeric() {
+    @Test
+    func `ICAO check digit for alphanumeric input`() {
         // L898902C< : L=21, 8=8, 9=9, 8=8, 9=9, 0=0, 2=2, C=12, <=0
         // 21*7 + 8*3 + 9*1 + 8*7 + 9*3 + 0*1 + 2*7 + 12*3 + 0*1
         // = 147 + 24 + 9 + 56 + 27 + 0 + 14 + 36 + 0 = 313 → 313 mod 10 = 3
@@ -34,30 +34,30 @@ struct MRZKeyGeneratorTests {
         #expect(digit == "3")
     }
 
-    @Test("ICAO check digit for date 640812")
-    func checkDigitDate1() {
+    @Test
+    func `ICAO check digit for date 640812`() {
         // 6*7 + 4*3 + 0*1 + 8*7 + 1*3 + 2*1 = 42 + 12 + 0 + 56 + 3 + 2 = 115 → 5
         let digit = MRZKeyGenerator.checkDigit("640812")
         #expect(digit == "5")
     }
 
-    @Test("ICAO check digit for date 120415")
-    func checkDigitDate2() {
+    @Test
+    func `ICAO check digit for date 120415`() {
         // 1*7 + 2*3 + 0*1 + 4*7 + 1*3 + 5*1 = 7 + 6 + 0 + 28 + 3 + 5 = 49 → 9
         let digit = MRZKeyGenerator.checkDigit("120415")
         #expect(digit == "9")
     }
 
-    @Test("Check digit with all filler characters")
-    func checkDigitAllFiller() {
+    @Test
+    func `Check digit with all filler characters`() {
         let digit = MRZKeyGenerator.checkDigit("<<<")
         #expect(digit == "0") // All zeros → sum = 0 → 0 mod 10 = 0
     }
 
     // MARK: - MRZ Key Generation
 
-    @Test("ICAO 9303 Appendix D.1 MRZ key")
-    func icaoTestVectorMRZKey() {
+    @Test
+    func `ICAO 9303 Appendix D.1 MRZ key`() {
         // ICAO Doc 9303 Part 11, Appendix D.1
         // Document number: L898902C<, DOB: 690806, DOE: 940623
         let mrzKey = MRZKeyGenerator.computeMRZKey(
@@ -71,8 +71,8 @@ struct MRZKeyGeneratorTests {
         #expect(mrzKey.count == 24) // 9 + 1 + 6 + 1 + 6 + 1
     }
 
-    @Test("Short document number is padded with fillers")
-    func shortDocNumberPadded() {
+    @Test
+    func `Short document number is padded with fillers`() {
         let mrzKey = MRZKeyGenerator.computeMRZKey(
             documentNumber: "AB1234",
             dateOfBirth: "900101",
@@ -82,8 +82,8 @@ struct MRZKeyGeneratorTests {
         #expect(mrzKey.hasPrefix("AB1234<<<"))
     }
 
-    @Test("Full-length document number is not truncated")
-    func fullLengthDocNumber() {
+    @Test
+    func `Full-length document number is not truncated`() {
         let mrzKey = MRZKeyGenerator.computeMRZKey(
             documentNumber: "123456789",
             dateOfBirth: "900101",
@@ -92,8 +92,8 @@ struct MRZKeyGeneratorTests {
         #expect(mrzKey.hasPrefix("123456789"))
     }
 
-    @Test("MRZ key has correct total length")
-    func mrzKeyLength() {
+    @Test
+    func `MRZ key has correct total length`() {
         let mrzKey = MRZKeyGenerator.computeMRZKey(
             documentNumber: "ABCDEF",
             dateOfBirth: "850315",

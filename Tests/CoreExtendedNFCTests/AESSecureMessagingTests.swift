@@ -17,24 +17,24 @@ struct AESSecureMessagingTests {
 
     // BSI TR-03110 Part 3, Section A.3: SSC is always 8 bytes
 
-    @Test("SSC is always 8 bytes regardless of mode")
-    func sscAlways8Bytes() {
+    @Test
+    func `SSC is always 8 bytes regardless of mode`() {
         #expect(SMEncryptionMode.tripleDES.sscLength == 8)
         #expect(SMEncryptionMode.aes128.sscLength == 8)
         #expect(SMEncryptionMode.aes192.sscLength == 8)
         #expect(SMEncryptionMode.aes256.sscLength == 8)
     }
 
-    @Test("AES block size is 16, 3DES block size is 8")
-    func blockSizes() {
+    @Test
+    func `AES block size is 16, 3DES block size is 8`() {
         #expect(SMEncryptionMode.tripleDES.blockSize == 8)
         #expect(SMEncryptionMode.aes128.blockSize == 16)
         #expect(SMEncryptionMode.aes192.blockSize == 16)
         #expect(SMEncryptionMode.aes256.blockSize == 16)
     }
 
-    @Test("MAC output is always truncated to 8 bytes")
-    func macAlways8Bytes() {
+    @Test
+    func `MAC output is always truncated to 8 bytes`() {
         #expect(SMEncryptionMode.tripleDES.macLength == 8)
         #expect(SMEncryptionMode.aes128.macLength == 8)
         #expect(SMEncryptionMode.aes192.macLength == 8)
@@ -43,8 +43,8 @@ struct AESSecureMessagingTests {
 
     // MARK: - AES IV Computation Convention
 
-    @Test("AES IV is computed from paddedSSC = [0x00]*8 || SSC")
-    func aesIVFromPaddedSSC() throws {
+    @Test
+    func `AES IV is computed from paddedSSC = [0x00]*8 || SSC`() throws {
         // Given an 8-byte SSC
         let ssc = Data([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01])
         let paddedSSC = Data(repeating: 0x00, count: 8) + ssc
@@ -61,8 +61,8 @@ struct AESSecureMessagingTests {
 
     // MARK: - CMAC Input Convention
 
-    @Test("AES-CMAC is computed over padded input and truncated to 8 bytes")
-    func aesCMACTruncation() throws {
+    @Test
+    func `AES-CMAC is computed over padded input and truncated to 8 bytes`() throws {
         let key = Data(repeating: 0x42, count: 16)
         let message = ISO9797Padding.pad(Data([0x01, 0x02, 0x03, 0x04]), blockSize: 16)
 
@@ -75,8 +75,8 @@ struct AESSecureMessagingTests {
 
     // MARK: - DES Secure Messaging Vector Test
 
-    @Test("3DES Secure Messaging with ICAO test vectors")
-    func desSMVectorTest() throws {
+    @Test
+    func `3DES Secure Messaging with ICAO test vectors`() throws {
         // ICAO 9303 test vectors for BAC secure messaging
         let ksEnc = try #require(Data(hexString: "8FDCFE759E40A4DF4575160B3BFB79FB"))
         let ksMac = try #require(Data(hexString: "2AE92531E55707D9C4CEF8C2D6E5AD70"))
@@ -101,8 +101,8 @@ struct AESSecureMessagingTests {
 
     // MARK: - AES SM Transport Construction
 
-    @Test("AES-128 SM transport with 8-byte SSC")
-    func aes128SMTransport() {
+    @Test
+    func `AES-128 SM transport with 8-byte SSC`() {
         let ksEnc = Data(repeating: 0x01, count: 16)
         let ksMac = Data(repeating: 0x02, count: 16)
         let ssc = Data(repeating: 0x00, count: 8) // 8-byte SSC
@@ -118,8 +118,8 @@ struct AESSecureMessagingTests {
         #expect(sm.identifier == mock.identifier)
     }
 
-    @Test("AES-256 SM transport with 8-byte SSC")
-    func aes256SMTransport() {
+    @Test
+    func `AES-256 SM transport with 8-byte SSC`() {
         let ksEnc = Data(repeating: 0x01, count: 32)
         let ksMac = Data(repeating: 0x02, count: 32)
         let ssc = Data(repeating: 0x00, count: 8) // 8-byte SSC

@@ -18,8 +18,8 @@ struct BACTests {
 
     // ICAO 9303 Part 11, Section 9.7.2: GET CHALLENGE → MUTUAL AUTHENTICATE
 
-    @Test("BAC authentication succeeds with ICAO Appendix D.1 MRZ keys")
-    func bacFullFlow() async throws {
+    @Test
+    func `BAC authentication succeeds with ICAO Appendix D.1 MRZ keys`() async throws {
         let mock = MockTransport()
 
         // ICAO 9303 Part 11 Appendix D.1 MRZ key
@@ -91,8 +91,8 @@ struct BACTests {
         #expect(mock.sentAPDUs[1].data?.count == 40)
     }
 
-    @Test("BAC fails when GET CHALLENGE returns wrong length")
-    func bacFailsWrongChallengeLength() async throws {
+    @Test
+    func `BAC fails when GET CHALLENGE returns wrong length`() async throws {
         let mock = MockTransport()
         mock.apduResponses = [
             ResponseAPDU(data: Data([0x01, 0x02, 0x03]), sw1: 0x90, sw2: 0x00), // 3 bytes instead of 8
@@ -103,8 +103,8 @@ struct BACTests {
         }
     }
 
-    @Test("BAC fails when GET CHALLENGE returns error status")
-    func bacFailsChallengeError() async throws {
+    @Test
+    func `BAC fails when GET CHALLENGE returns error status`() async throws {
         let mock = MockTransport()
         mock.apduResponses = [
             ResponseAPDU(data: Data(), sw1: 0x6A, sw2: 0x82), // File not found
@@ -115,8 +115,8 @@ struct BACTests {
         }
     }
 
-    @Test("BAC fails when MUTUAL AUTHENTICATE returns error status")
-    func bacFailsAuthError() async throws {
+    @Test
+    func `BAC fails when MUTUAL AUTHENTICATE returns error status`() async throws {
         let mock = MockTransport()
         mock.apduResponses = [
             ResponseAPDU(data: Data(repeating: 0xAA, count: 8), sw1: 0x90, sw2: 0x00),
@@ -128,8 +128,8 @@ struct BACTests {
         }
     }
 
-    @Test("BAC fails when MUTUAL AUTHENTICATE returns wrong length")
-    func bacFailsAuthWrongLength() async throws {
+    @Test
+    func `BAC fails when MUTUAL AUTHENTICATE returns wrong length`() async throws {
         let mock = MockTransport()
         mock.apduResponses = [
             ResponseAPDU(data: Data(repeating: 0xAA, count: 8), sw1: 0x90, sw2: 0x00),

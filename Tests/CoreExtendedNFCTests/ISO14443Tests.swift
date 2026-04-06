@@ -12,37 +12,37 @@ import Testing
 struct ISO14443Tests {
     // MARK: - CRC_A
 
-    @Test("CRC_A of single byte — verified against libnfc iso14443a_crc")
-    func crcASingleByte() {
+    @Test
+    func `CRC_A of single byte — verified against libnfc iso14443a_crc`() {
         let (lo, hi) = ISO14443.crcA(Data([0x00]))
         #expect(lo == 0xFE)
         #expect(hi == 0x51)
     }
 
-    @Test("CRC_A of READ command — verified against libnfc iso14443a_crc")
-    func crcAReadCommand() {
+    @Test
+    func `CRC_A of READ command — verified against libnfc iso14443a_crc`() {
         // READ page 4: the most common Ultralight command
         let (lo, hi) = ISO14443.crcA(Data([0x30, 0x04]))
         #expect(lo == 0x26)
         #expect(hi == 0xEE)
     }
 
-    @Test("CRC_A of AUTH command — verified against libnfc iso14443a_crc")
-    func crcAAuthCommand() {
+    @Test
+    func `CRC_A of AUTH command — verified against libnfc iso14443a_crc`() {
         let (lo, hi) = ISO14443.crcA(Data([0x60, 0x00]))
         #expect(lo == 0xF5)
         #expect(hi == 0x7B)
     }
 
-    @Test("CRC_A of HALT command — verified against libnfc iso14443a_crc")
-    func crcAHaltCommand() {
+    @Test
+    func `CRC_A of HALT command — verified against libnfc iso14443a_crc`() {
         let (lo, hi) = ISO14443.crcA(Data([0x50, 0x00]))
         #expect(lo == 0x57)
         #expect(hi == 0xCD)
     }
 
-    @Test("CRC_A append")
-    func crcAAppend() {
+    @Test
+    func `CRC_A append`() {
         var data = Data([0x30, 0x04])
         ISO14443.appendCrcA(&data)
         #expect(data.count == 4)
@@ -52,22 +52,22 @@ struct ISO14443Tests {
 
     // MARK: - CRC_B
 
-    @Test("CRC_B — verified against libnfc iso14443b_crc")
-    func crcBKnownVector() {
+    @Test
+    func `CRC_B — verified against libnfc iso14443b_crc`() {
         let (lo, hi) = ISO14443.crcB(Data([0x05, 0x00]))
         #expect(lo == 0xFF)
         #expect(hi == 0x71)
     }
 
-    @Test("CRC_B of multi-byte — verified against libnfc iso14443b_crc")
-    func crcBMultiByte() {
+    @Test
+    func `CRC_B of multi-byte — verified against libnfc iso14443b_crc`() {
         let (lo, hi) = ISO14443.crcB(Data([0x01, 0x02, 0x03]))
         #expect(lo == 0x3B)
         #expect(hi == 0x9D)
     }
 
-    @Test("CRC_B append")
-    func crcBAppend() {
+    @Test
+    func `CRC_B append`() {
         var data = Data([0x05, 0x00])
         ISO14443.appendCrcB(&data)
         #expect(data.count == 4)
@@ -77,15 +77,15 @@ struct ISO14443Tests {
 
     // MARK: - UID Cascade
 
-    @Test("4-byte UID has no cascade")
-    func cascade4Byte() {
+    @Test
+    func `4-byte UID has no cascade`() {
         let uid = Data([0x01, 0x02, 0x03, 0x04])
         let result = ISO14443.cascadeUID(uid)
         #expect(result == uid)
     }
 
-    @Test("7-byte UID gets single cascade tag")
-    func cascade7Byte() {
+    @Test
+    func `7-byte UID gets single cascade tag`() {
         let uid = Data([0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07])
         let result = ISO14443.cascadeUID(uid)
         #expect(result.count == 8)
@@ -93,8 +93,8 @@ struct ISO14443Tests {
         #expect(Data(result[1...]) == uid)
     }
 
-    @Test("10-byte UID gets double cascade tags")
-    func cascade10Byte() {
+    @Test
+    func `10-byte UID gets double cascade tags`() {
         let uid = Data([0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A])
         let result = ISO14443.cascadeUID(uid)
         #expect(result.count == 12)
@@ -108,8 +108,8 @@ struct ISO14443Tests {
 
     // MARK: - ATS Parsing
 
-    @Test("Parse ATS with all optional bytes")
-    func parseATSFull() {
+    @Test
+    func `Parse ATS with all optional bytes`() {
         // T0: FSCI=8, TA present (0x10), TB present (0x20), TC present (0x40) → 0x78
         let ats = Data([0x78, 0x77, 0x81, 0x02, 0xAB, 0xCD])
         let info = ISO14443.parseATS(ats)
@@ -121,8 +121,8 @@ struct ISO14443Tests {
         #expect(info.maxFrameSize == 256)
     }
 
-    @Test("Parse ATS with no optional bytes")
-    func parseATSMinimal() {
+    @Test
+    func `Parse ATS with no optional bytes`() {
         let ats = Data([0x05]) // FSCI=5, no TA/TB/TC
         let info = ISO14443.parseATS(ats)
         #expect(info.fsci == 5)
@@ -133,16 +133,16 @@ struct ISO14443Tests {
         #expect(info.maxFrameSize == 64)
     }
 
-    @Test("Parse empty ATS")
-    func parseATSEmpty() {
+    @Test
+    func `Parse empty ATS`() {
         let info = ISO14443.parseATS(Data())
         #expect(info.fsci == 0)
         #expect(info.ta == nil)
         #expect(info.historicalBytes.isEmpty)
     }
 
-    @Test("FSCI to max frame size mapping")
-    func fsciMapping() {
+    @Test
+    func `FSCI to max frame size mapping`() {
         let expected = [16, 24, 32, 40, 48, 64, 96, 128, 256]
         for (fsci, size) in expected.enumerated() {
             let ats = Data([UInt8(fsci)])

@@ -11,8 +11,8 @@ import Foundation
 import Testing
 
 struct NDEFTests {
-    @Test("Text NDEF record round-trips")
-    func textRecordRoundTrip() throws {
+    @Test
+    func `Text NDEF record round-trips`() throws {
         let message = NDEFMessage(records: [.text("Hello", languageCode: "en")])
 
         let reparsed = try NDEFMessage(data: message.data)
@@ -21,8 +21,8 @@ struct NDEFTests {
         #expect(reparsed.records[0].parsedPayload == .text(languageCode: "en", text: "Hello"))
     }
 
-    @Test("URI NDEF record decodes common prefix")
-    func uriRecordRoundTrip() throws {
+    @Test
+    func `URI NDEF record decodes common prefix`() throws {
         let message = NDEFMessage.uri("https://www.example.com/path")
 
         let reparsed = try NDEFMessage(data: message.data)
@@ -31,8 +31,8 @@ struct NDEFTests {
         #expect(reparsed.records[0].parsedPayload == .uri("https://www.example.com/path"))
     }
 
-    @Test("Smart Poster decodes nested URI and title")
-    func smartPosterParsing() throws {
+    @Test
+    func `Smart Poster decodes nested URI and title`() throws {
         let message = NDEFMessage(records: [.smartPoster(uri: "https://openai.com", title: "OpenAI")])
 
         let reparsed = try NDEFMessage(data: message.data)
@@ -41,8 +41,8 @@ struct NDEFTests {
         #expect(reparsed.records[0].parsedPayload == .smartPoster(uri: "https://openai.com", title: "OpenAI"))
     }
 
-    @Test("Type 2 TLV extraction finds NDEF payload")
-    func type2TLVExtraction() throws {
+    @Test
+    func `Type 2 TLV extraction finds NDEF payload`() throws {
         let payload = NDEFMessage.text("Hi").data
         let tlv = Data([0x03, UInt8(payload.count)]) + payload + Data([0xFE, 0x00])
         let pages: [MemoryDump.Page] = Array(stride(from: 0, to: tlv.count, by: 4)).enumerated().map { pair in
@@ -57,8 +57,8 @@ struct NDEFTests {
         #expect(try NDEFMessage(data: extracted ?? Data()).records.first?.parsedPayload == .text(languageCode: "en", text: "Hi"))
     }
 
-    @Test("Type 5 TLV extraction finds NDEF payload")
-    func type5TLVExtraction() {
+    @Test
+    func `Type 5 TLV extraction finds NDEF payload`() {
         let payload = NDEFMessage.uri("https://example.com").data
         let bytes = Data([0xE1, 0x40, 0x40, 0x01, 0x03, UInt8(payload.count)]) + payload + Data([0xFE, 0x00])
         let blocks: [MemoryDump.Block] = Array(stride(from: 0, to: bytes.count, by: 4)).enumerated().map { pair in
@@ -72,8 +72,8 @@ struct NDEFTests {
         #expect(extracted == payload)
     }
 
-    @Test("MemoryDump summary exposes parsed NDEF and capabilities")
-    func dumpSummary() {
+    @Test
+    func `MemoryDump summary exposes parsed NDEF and capabilities`() {
         let message = NDEFMessage.text("Summary")
         let dump = MemoryDump(
             cardInfo: CardInfo(type: .type4NDEF, uid: Data([0x01, 0x02, 0x03, 0x04])),
@@ -88,8 +88,8 @@ struct NDEFTests {
         #expect(dump.exportHex().contains("Parsed NDEF"))
     }
 
-    @Test("Format Type 2 writes CC page and clears user data")
-    func formatType2() async throws {
+    @Test
+    func `Format Type 2 writes CC page and clears user data`() async throws {
         let transport = MockTransport()
         // 12 user page writes (pages 4–15) + 1 CC write (page 3) = 13
         transport.responses = Array(repeating: Data([0x0A]), count: 13)
@@ -117,8 +117,8 @@ struct NDEFTests {
         #expect(Data(transport.sentCommands[12].dropFirst(2)) == expectedCC)
     }
 
-    @Test("Format Type 5 writes CC and empty NDEF blocks")
-    func formatType5() async throws {
+    @Test
+    func `Format Type 5 writes CC and empty NDEF blocks`() async throws {
         let transport = MockISO15693WriteTransport(
             systemInfo: ISO15693SystemInfo(
                 uid: Data([0xE0, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07]),
@@ -144,8 +144,8 @@ struct NDEFTests {
         #expect(transport.writtenBlocks[1].data[2] == 0xFE)
     }
 
-    @Test("Format NDEF throws for unsupported card families")
-    func formatUnsupportedFamily() async throws {
+    @Test
+    func `Format NDEF throws for unsupported card families`() async throws {
         let transport = MockTransport()
         await #expect(throws: NFCError.self) {
             try await CoreExtendedNFC.formatNDEF(
@@ -155,8 +155,8 @@ struct NDEFTests {
         }
     }
 
-    @Test("Unified Type 2 NDEF write lays out TLV pages")
-    func writeType2() async throws {
+    @Test
+    func `Unified Type 2 NDEF write lays out TLV pages`() async throws {
         let transport = MockTransport()
         transport.responses = Array(repeating: Data([0x0A]), count: 12)
 
@@ -175,8 +175,8 @@ struct NDEFTests {
         #expect(Data(transport.sentCommands[1].dropFirst(2)) == Data(expectedArea[4 ..< 8]))
     }
 
-    @Test("Type 3 NDEF write updates attribute block and message blocks")
-    func writeType3() async throws {
+    @Test
+    func `Type 3 NDEF write updates attribute block and message blocks`() async throws {
         let transport = MockFeliCaWriteTransport()
         transport.readResponses = [makeAttributeInfoBlock(nbr: 4, nbw: 2, nmaxb: 4, rwFlag: 0x01, ndefLength: 0)]
 
@@ -194,8 +194,8 @@ struct NDEFTests {
         #expect(transport.writeCalls[1].blocks[0].prefix(message.data.count) == message.data.prefix(message.data.count))
     }
 
-    @Test("Unified Type 5 NDEF write emits CC and user blocks")
-    func writeType5() async throws {
+    @Test
+    func `Unified Type 5 NDEF write emits CC and user blocks`() async throws {
         let transport = MockISO15693WriteTransport(
             systemInfo: ISO15693SystemInfo(
                 uid: Data([0xE0, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07]),

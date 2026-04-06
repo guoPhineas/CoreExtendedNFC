@@ -18,8 +18,8 @@ import Testing
 struct Phase2Tests {
     // MARK: - DG14 SecurityInfo Parser
 
-    @Test("Parse DG14 with PACE info")
-    func parseDG14PACEInfo() throws {
+    @Test
+    func `Parse DG14 with PACE info`() throws {
         // Build a DG14 with PACEInfo:
         // 6E { 31 { 30 { 06 <PACE-ECDH-GM-AES-CBC-CMAC-256 OID> 02 01 02 02 01 0C } } }
         let oid = ChipAuthenticationHandler.encodeOID("0.4.0.127.0.7.2.2.4.2.4")
@@ -44,8 +44,8 @@ struct Phase2Tests {
         #expect(result.paceInfos[0].parameterID == 12)
     }
 
-    @Test("Parse DG14 with Chip Authentication info")
-    func parseDG14ChipAuth() throws {
+    @Test
+    func `Parse DG14 with Chip Authentication info`() throws {
         let oid = ChipAuthenticationHandler.encodeOID("0.4.0.127.0.7.2.2.3.2.2")
         let oidNode = ASN1Parser.encodeTLV(tag: 0x06, value: oid)
         let versionNode = ASN1Parser.encodeTLV(tag: 0x02, value: Data([0x01]))
@@ -64,8 +64,8 @@ struct Phase2Tests {
         #expect(result.chipAuthInfos[0].version == 1)
     }
 
-    @Test("Parse DG14 with multiple security infos")
-    func parseDG14MultipleInfos() throws {
+    @Test
+    func `Parse DG14 with multiple security infos`() throws {
         // PACE info
         let paceOID = ChipAuthenticationHandler.encodeOID("0.4.0.127.0.7.2.2.4.2.2")
         let paceNode = ASN1Parser.encodeTLV(tag: 0x30, value:
@@ -89,8 +89,8 @@ struct Phase2Tests {
         #expect(result.chipAuthInfos.count == 1)
     }
 
-    @Test("SecurityProtocol properties")
-    func securityProtocolProperties() {
+    @Test
+    func `SecurityProtocol properties`() {
         #expect(SecurityProtocol.paceECDHGMAESCBCCMAC256.isPACE)
         #expect(!SecurityProtocol.paceECDHGMAESCBCCMAC256.isChipAuthentication)
         #expect(SecurityProtocol.paceECDHGMAESCBCCMAC256.isECDH)
@@ -107,8 +107,8 @@ struct Phase2Tests {
 
     // MARK: - DG15 Active Auth Public Key Parser
 
-    @Test("Parse DG15 with RSA public key")
-    func parseDG15RSA() throws {
+    @Test
+    func `Parse DG15 with RSA public key`() throws {
         // Build a minimal DG15 with RSA SubjectPublicKeyInfo:
         // 6F { 30 (SPKI) { 30 (AlgId) { 06 (rsaEncryption) 05 00 } 03 (BIT STRING) { RSAPublicKey } } }
 
@@ -143,8 +143,8 @@ struct Phase2Tests {
         }
     }
 
-    @Test("Parse DG15 with ECDSA public key")
-    func parseDG15ECDSA() throws {
+    @Test
+    func `Parse DG15 with ECDSA public key`() throws {
         let ecOID = ChipAuthenticationHandler.encodeOID("1.2.840.10045.2.1")
         let curveOID = ChipAuthenticationHandler.encodeOID("1.2.840.10045.3.1.7") // secp256r1
 
@@ -176,8 +176,8 @@ struct Phase2Tests {
         }
     }
 
-    @Test("Parse DG15 with unknown algorithm returns unknown")
-    func parseDG15Unknown() throws {
+    @Test
+    func `Parse DG15 with unknown algorithm returns unknown`() throws {
         let unknownOID = ChipAuthenticationHandler.encodeOID("1.2.3.4.5.6.7")
         let algId = ASN1Parser.encodeTLV(tag: 0x30, value:
             ASN1Parser.encodeTLV(tag: 0x06, value: unknownOID))
@@ -195,8 +195,8 @@ struct Phase2Tests {
 
     // MARK: - SOD Parser
 
-    @Test("Parse minimal SOD structure")
-    func parseSODMinimal() throws {
+    @Test
+    func `Parse minimal SOD structure`() throws {
         // Build a minimal SOD with one DG hash
         let signedDataOID = ChipAuthenticationHandler.encodeOID("1.2.840.113549.1.7.2")
         let sha256OID = ChipAuthenticationHandler.encodeOID("2.16.840.1.101.3.4.2.1")
@@ -251,8 +251,8 @@ struct Phase2Tests {
         #expect(result.dataGroupHashes[.dg1] == dg1Hash)
     }
 
-    @Test("SOD hash verification — matching hashes")
-    func sodHashVerificationMatch() {
+    @Test
+    func `SOD hash verification — matching hashes`() {
         // Create raw DG1 data
         let rawDG1 = Data(repeating: 0x42, count: 100)
 
@@ -283,8 +283,8 @@ struct Phase2Tests {
         #expect(result.failedDataGroups.isEmpty)
     }
 
-    @Test("SOD hash verification — mismatched hashes")
-    func sodHashVerificationMismatch() {
+    @Test
+    func `SOD hash verification — mismatched hashes`() {
         let rawDG1 = Data(repeating: 0x42, count: 100)
         let wrongHash = Data(repeating: 0xFF, count: 32)
 
@@ -311,8 +311,8 @@ struct Phase2Tests {
         #expect(result.failedDataGroups.contains(.dg1))
     }
 
-    @Test("SOD hash verification — SHA-1 algorithm")
-    func sodHashVerificationSHA1() {
+    @Test
+    func `SOD hash verification — SHA-1 algorithm`() {
         let rawDG1 = Data(repeating: 0x42, count: 50)
         let expectedHash = HashUtils.sha1(rawDG1)
 
@@ -337,8 +337,8 @@ struct Phase2Tests {
         #expect(result.allHashesValid)
     }
 
-    @Test("SOD hash verification — multiple data groups")
-    func sodHashVerificationMultiple() {
+    @Test
+    func `SOD hash verification — multiple data groups`() {
         let rawDG1 = Data([0x01, 0x02, 0x03])
         let rawDG2 = Data([0x04, 0x05, 0x06])
 
@@ -369,8 +369,8 @@ struct Phase2Tests {
 
     // MARK: - OID Encoding / Decoding
 
-    @Test("OID encode/decode roundtrip")
-    func oidRoundtrip() {
+    @Test
+    func `OID encode/decode roundtrip`() {
         let oids = [
             "0.4.0.127.0.7.2.2.4.2.4",
             "1.2.840.113549.1.7.2",
@@ -386,8 +386,8 @@ struct Phase2Tests {
         }
     }
 
-    @Test("OID decode known values")
-    func oidDecodeKnown() {
+    @Test
+    func `OID decode known values`() {
         // SHA-256 OID: 2.16.840.1.101.3.4.2.1
         // DER: 60 86 48 01 65 03 04 02 01
         let sha256DER = Data([0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x01])
@@ -397,8 +397,8 @@ struct Phase2Tests {
 
     // MARK: - AES Secure Messaging
 
-    @Test("AES-mode SecureMessaging encrypt/decrypt roundtrip")
-    func aesSMRoundtrip() {
+    @Test
+    func `AES-mode SecureMessaging encrypt/decrypt roundtrip`() {
         let ksEnc = Data(repeating: 0x01, count: 16)
         let ksMac = Data(repeating: 0x02, count: 16)
         let ssc = Data(repeating: 0x00, count: 8) // 8-byte SSC (padded to 16 inside SM for AES)
@@ -417,8 +417,8 @@ struct Phase2Tests {
         #expect(sm.identifier == mock.identifier)
     }
 
-    @Test("SMEncryptionMode properties")
-    func smEncryptionModeProperties() {
+    @Test
+    func `SMEncryptionMode properties`() {
         #expect(SMEncryptionMode.tripleDES.blockSize == 8)
         #expect(SMEncryptionMode.tripleDES.sscLength == 8)
         #expect(SMEncryptionMode.tripleDES.macLength == 8)
@@ -433,8 +433,8 @@ struct Phase2Tests {
 
     // MARK: - PACE Handler
 
-    @Test("PACE password key derivation for MRZ")
-    func pacePasswordKeyDerivationMRZ() {
+    @Test
+    func `PACE password key derivation for MRZ`() {
         let key = PACEHandler.derivePasswordKey(
             password: "L898902C<364081251204159",
             keyReference: .mrz,
@@ -444,8 +444,8 @@ struct Phase2Tests {
         #expect(key.count == 16)
     }
 
-    @Test("PACE password key derivation for CAN")
-    func pacePasswordKeyDerivationCAN() {
+    @Test
+    func `PACE password key derivation for CAN`() {
         let key = PACEHandler.derivePasswordKey(
             password: "123456",
             keyReference: .can,
@@ -454,8 +454,8 @@ struct Phase2Tests {
         #expect(key.count == 16)
     }
 
-    @Test("PACE password key derivation for CAN AES-256 uses password bytes")
-    func pacePasswordKeyDerivationCANAES256() throws {
+    @Test
+    func `PACE password key derivation for CAN AES-256 uses password bytes`() throws {
         let key = PACEHandler.derivePasswordKey(
             password: "123456",
             keyReference: .can,
@@ -466,8 +466,8 @@ struct Phase2Tests {
         #expect(key == expected)
     }
 
-    @Test("PACE session key derivation")
-    func paceSessionKeyDerivation() {
+    @Test
+    func `PACE session key derivation`() {
         let sharedSecret = Data(repeating: 0xAB, count: 32)
         let (ksEnc, ksMac) = PACEHandler.derivePACESessionKeys(
             sharedSecret: sharedSecret,
@@ -479,8 +479,8 @@ struct Phase2Tests {
         #expect(ksEnc != ksMac) // Different keys for enc and mac
     }
 
-    @Test("PACE session key derivation AES-256")
-    func paceSessionKeyDerivationAES256() {
+    @Test
+    func `PACE session key derivation AES-256`() {
         let sharedSecret = Data(repeating: 0xCD, count: 64)
         let (ksEnc, ksMac) = PACEHandler.derivePACESessionKeys(
             sharedSecret: sharedSecret,
@@ -492,8 +492,8 @@ struct Phase2Tests {
         #expect(ksEnc != ksMac)
     }
 
-    @Test("PACE authentication token computation")
-    func paceAuthToken() throws {
+    @Test
+    func `PACE authentication token computation`() throws {
         let ksMac = Data(repeating: 0x42, count: 16)
         let publicKey = Data(repeating: 0xAB, count: 65)
         let oid = ChipAuthenticationHandler.encodeOID("0.4.0.127.0.7.2.2.4.2.2")
@@ -509,8 +509,8 @@ struct Phase2Tests {
     }
 
     #if canImport(OpenSSL)
-        @Test("PACE OpenSSL helper rejects the point at infinity")
-        func paceRejectsPointAtInfinity() throws {
+        @Test
+        func `PACE OpenSSL helper rejects the point at infinity`() throws {
             let curve = try OpenSSLPACECurve(parameterID: .secp256r1)
             let scalar = try curve.generatePrivateScalar()
 
@@ -522,8 +522,8 @@ struct Phase2Tests {
 
     // MARK: - Chip Authentication Handler
 
-    @Test("CA session key derivation")
-    func caSessionKeyDerivation() {
+    @Test
+    func `CA session key derivation`() {
         let sharedSecret = Data(repeating: 0xEF, count: 32)
         let (ksEnc, ksMac) = ChipAuthenticationHandler.deriveCASessionKeys(
             sharedSecret: sharedSecret,
@@ -535,8 +535,8 @@ struct Phase2Tests {
         #expect(ksEnc != ksMac)
     }
 
-    @Test("CA OID encoding")
-    func caOIDEncoding() {
+    @Test
+    func `CA OID encoding`() {
         let oid = "0.4.0.127.0.7.2.2.3.2.2"
         let encoded = ChipAuthenticationHandler.encodeOID(oid)
         let decoded = DG14Parser.decodeOID(encoded)
@@ -545,8 +545,8 @@ struct Phase2Tests {
 
     // MARK: - Passport APDU Extensions
 
-    @Test("INTERNAL AUTHENTICATE APDU")
-    func internalAuthAPDU() {
+    @Test
+    func `INTERNAL AUTHENTICATE APDU`() {
         let challenge = Data(repeating: 0xAA, count: 8)
         let apdu = CommandAPDU.internalAuthenticate(data: challenge)
         #expect(apdu.cla == 0x00)
@@ -557,8 +557,8 @@ struct Phase2Tests {
         #expect(apdu.le == 0x00)
     }
 
-    @Test("MSE:Set AT APDU with OID and key reference")
-    func mseSetATAPDU() throws {
+    @Test
+    func `MSE:Set AT APDU with OID and key reference`() throws {
         let oid = ChipAuthenticationHandler.encodeOID("0.4.0.127.0.7.2.2.4.2.2")
         let apdu = CommandAPDU.mseSetAT(oid: oid, keyRef: 0x01)
 
@@ -572,16 +572,16 @@ struct Phase2Tests {
         #expect(data.contains(0x83)) // Key reference tag
     }
 
-    @Test("General Authenticate APDU")
-    func generalAuthAPDU() {
+    @Test
+    func `General Authenticate APDU`() {
         let data = ASN1Parser.encodeTLV(tag: 0x7C, value: Data())
         let apdu = CommandAPDU.generalAuthenticate(data: data, isLast: true)
         #expect(apdu.cla == 0x00) // isLast = true → no chaining
         #expect(apdu.ins == 0x86)
     }
 
-    @Test("General Authenticate APDU with chaining")
-    func generalAuthAPDUChained() {
+    @Test
+    func `General Authenticate APDU with chaining`() {
         let data = ASN1Parser.encodeTLV(tag: 0x7C, value: Data())
         let apdu = CommandAPDU.generalAuthenticate(data: data, isLast: false)
         #expect(apdu.cla == 0x10) // Command chaining
@@ -590,8 +590,8 @@ struct Phase2Tests {
 
     // MARK: - PassportModel with Phase 2 fields
 
-    @Test("PassportModel with passive auth result")
-    func passportModelWithPA() {
+    @Test
+    func `PassportModel with passive auth result`() {
         let paResult = PassiveAuthenticationResult(
             dataGroupHashResults: [.dg1: true, .dg2: true],
             hasCertificate: true,
@@ -622,8 +622,8 @@ struct Phase2Tests {
         #expect(model.passiveAuthResult?.status == .signatureNotVerified)
     }
 
-    @Test("PassportModel with active auth result")
-    func passportModelWithAA() {
+    @Test
+    func `PassportModel with active auth result`() {
         let aaResult = ActiveAuthenticationResult(success: true, details: "RSA verified")
 
         let model = PassportModel(
@@ -650,8 +650,8 @@ struct Phase2Tests {
         #expect(model.activeAuthPublicKey != nil)
     }
 
-    @Test("PassportModel with security infos")
-    func passportModelWithSecurityInfos() {
+    @Test
+    func `PassportModel with security infos`() {
         let secInfos = SecurityInfos(
             paceInfos: [PACEInfo(
                 protocolOID: "0.4.0.127.0.7.2.2.4.2.4",
@@ -690,8 +690,8 @@ struct Phase2Tests {
 
     // MARK: - PACE Domain Parameters
 
-    @Test("PACE domain parameter IDs")
-    func paceDomainParameters() {
+    @Test
+    func `PACE domain parameter IDs`() {
         #expect(PACEHandler.DomainParameterID.secp256r1.rawValue == 12)
         #expect(PACEHandler.DomainParameterID.secp384r1.rawValue == 15)
         #expect(PACEHandler.DomainParameterID.secp521r1.rawValue == 18)
@@ -703,8 +703,8 @@ struct Phase2Tests {
 
     // MARK: - PassiveAuthStatus
 
-    @Test("PassiveAuthStatus values")
-    func passiveAuthStatusValues() {
+    @Test
+    func `PassiveAuthStatus values`() {
         #expect(PassiveAuthStatus.dataGroupHashesVerified.rawValue == "dataGroupHashesVerified")
         #expect(PassiveAuthStatus.hashMismatch.rawValue == "hashMismatch")
         #expect(PassiveAuthStatus.sodParseFailed.rawValue == "sodParseFailed")

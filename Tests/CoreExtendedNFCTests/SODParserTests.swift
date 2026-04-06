@@ -23,8 +23,8 @@ import Testing
 struct SODParserTests {
     // MARK: - Hash Algorithm Handling
 
-    @Test("Unknown hash algorithm returns .unsupportedHashAlgorithm instead of silent fallback")
-    func unknownHashAlgorithmNoFallback() {
+    @Test
+    func `Unknown hash algorithm returns .unsupportedHashAlgorithm instead of silent fallback`() {
         let rawDG1 = Data(repeating: 0x42, count: 100)
 
         let sodContent = SODContent(
@@ -51,8 +51,8 @@ struct SODParserTests {
                 "No hash results should be produced for unknown algorithm")
     }
 
-    @Test("SHA-224 hash algorithm (if present in SOD)")
-    func sha224InSOD() throws {
+    @Test
+    func `SHA-224 hash algorithm (if present in SOD)`() throws {
         // SOD with SHA-224 OID
         let sha224OID = ChipAuthenticationHandler.encodeOID("2.16.840.1.101.3.4.2.4")
         let signedDataOID = ChipAuthenticationHandler.encodeOID("1.2.840.113549.1.7.2")
@@ -97,8 +97,8 @@ struct SODParserTests {
 
     // MARK: - Passive Auth Semantics
 
-    @Test("Hash comparison success reports signatureNotVerified, not full verification")
-    func hashSuccessReportsSignatureNotVerified() {
+    @Test
+    func `Hash comparison success reports signatureNotVerified, not full verification`() {
         let rawDG1 = Data(repeating: 0x42, count: 100)
         let expectedHash = HashUtils.sha256(rawDG1)
 
@@ -126,8 +126,8 @@ struct SODParserTests {
                 "Hash-only comparison should report .signatureNotVerified, not full PA complete")
     }
 
-    @Test("Missing DG data is skipped, not failed")
-    func missingDGDataSkipped() {
+    @Test
+    func `Missing DG data is skipped, not failed`() {
         let sodContent = SODContent(
             hashAlgorithmOID: "2.16.840.1.101.3.4.2.1",
             hashAlgorithm: "SHA-256",
@@ -158,8 +158,8 @@ struct SODParserTests {
 
     // MARK: - SignedAttrs DER Storage
 
-    @Test("signedAttrs stored as re-tagged SET (0x31) DER for CMS verification")
-    func signedAttrsDER() throws {
+    @Test
+    func `signedAttrs stored as re-tagged SET (0x31) DER for CMS verification`() throws {
         // Build a minimal SignerInfo with signedAttrs [0] IMPLICIT
         let signedDataOID = ChipAuthenticationHandler.encodeOID("1.2.840.113549.1.7.2")
         let sha256OID = ChipAuthenticationHandler.encodeOID("2.16.840.1.101.3.4.2.1")
@@ -206,8 +206,8 @@ struct SODParserTests {
     }
 
     #if canImport(OpenSSL)
-        @Test("CMS-backed SOD verifies embedded signature and hashes")
-        func cmsSignatureVerificationSuccess() throws {
+        @Test
+        func `CMS-backed SOD verifies embedded signature and hashes`() throws {
             let rawDG1 = Data("P<UTOERIKSSON<<ANNA<MARIA<<<<<<<<<<<<<<<<<<<".utf8)
             let (sodData, _) = try makeSignedSOD(rawDataGroups: [.dg1: rawDG1])
 
@@ -222,8 +222,8 @@ struct SODParserTests {
             #expect(result.status == .signatureVerified)
         }
 
-        @Test("CMS-backed SOD reports signatureInvalid when CMS bytes are tampered")
-        func cmsSignatureVerificationFailure() throws {
+        @Test
+        func `CMS-backed SOD reports signatureInvalid when CMS bytes are tampered`() throws {
             let rawDG1 = Data("P<UTOERIKSSON<<ANNA<MARIA<<<<<<<<<<<<<<<<<<<".utf8)
             let (sodData, _) = try makeSignedSOD(rawDataGroups: [.dg1: rawDG1])
             let parsed = try SODParser.parse(sodData)
@@ -256,8 +256,8 @@ struct SODParserTests {
             #expect(result.status == .signatureInvalid)
         }
 
-        @Test("SOD fully verifies when DSC is trusted by provided anchors")
-        func cmsTrustChainVerificationSuccess() throws {
+        @Test
+        func `SOD fully verifies when DSC is trusted by provided anchors`() throws {
             let rawDG1 = Data("P<UTOERIKSSON<<ANNA<MARIA<<<<<<<<<<<<<<<<<<<".utf8)
             let (sodData, signerDER) = try makeSignedSOD(rawDataGroups: [.dg1: rawDG1], returnSignerDER: true)
 
@@ -274,8 +274,8 @@ struct SODParserTests {
             #expect(result.status == .fullyVerified)
         }
 
-        @Test("SOD trust chain reports invalid for unrelated anchors")
-        func cmsTrustChainVerificationFailure() throws {
+        @Test
+        func `SOD trust chain reports invalid for unrelated anchors`() throws {
             let rawDG1 = Data("P<UTOERIKSSON<<ANNA<MARIA<<<<<<<<<<<<<<<<<<<".utf8)
             let (sodData, _) = try makeSignedSOD(rawDataGroups: [.dg1: rawDG1], returnSignerDER: true)
             let (otherCertificate, _) = try makeSelfSignedCertificate()

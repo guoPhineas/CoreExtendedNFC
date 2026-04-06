@@ -11,8 +11,8 @@ import Foundation
 import Testing
 
 struct PassportReaderTests {
-    @Test("CardAccess parser extracts advertised PACE info")
-    func parseCardAccessPACEInfo() throws {
+    @Test
+    func `CardAccess parser extracts advertised PACE info`() throws {
         let cardAccessData = makeCardAccessData()
 
         let result = try CardAccessParser.parse(cardAccessData)
@@ -23,8 +23,8 @@ struct PassportReaderTests {
         #expect(result.paceInfos[0].parameterID == 12)
     }
 
-    @Test("Passport reader falls back to BAC when advertised PACE cannot complete")
-    func readPassportFallsBackToBACAfterPACEAttempt() async throws {
+    @Test
+    func `Passport reader falls back to BAC when advertised PACE cannot complete`() async throws {
         let mrzKey = "L898902C<369080619406236"
         let cardAccessData = makeCardAccessData()
         let transport = PassportNegotiationTransport(
@@ -49,8 +49,8 @@ struct PassportReaderTests {
     }
 
     #if canImport(OpenSSL)
-        @Test("Passport reader completes PACE, reads COM over secure messaging, and skips BAC on supported NIST curves")
-        func readPassportUsesPACEAndSecureMessaging() async throws {
+        @Test
+        func `Passport reader completes PACE, reads COM over secure messaging, and skips BAC on supported NIST curves`() async throws {
             let mrzKey = "L898902C<369080619406236"
             let comData = makeCOMData()
 

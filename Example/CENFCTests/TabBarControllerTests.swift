@@ -5,8 +5,8 @@ import UIKit
 
 @MainActor
 struct TabBarControllerTests {
-    @Test("Tab bar exposes stable tabs and automation identifiers")
-    func tabBarConfiguration() throws {
+    @Test
+    func `Tab bar exposes stable tabs and automation identifiers`() throws {
         let controller = TabBarController()
         controller.loadViewIfNeeded()
 

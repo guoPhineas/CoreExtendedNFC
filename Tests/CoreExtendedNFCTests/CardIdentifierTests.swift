@@ -11,57 +11,57 @@ import Foundation
 import Testing
 
 struct CardIdentifierTests {
-    @Test("MIFARE Ultralight: ATQA 0x0044, SAK 0x00")
-    func identifyUltralight() {
+    @Test
+    func `MIFARE Ultralight: ATQA 0x0044, SAK 0x00`() {
         let type = CardIdentifier.identify(atqa: Data([0x00, 0x44]), sak: 0x00)
         #expect(type == .mifareUltralight)
         #expect(type.family == .mifareUltralight)
     }
 
-    @Test("MIFARE Classic 1K: ATQA 0x0004, SAK 0x08")
-    func identifyClassic1K() {
+    @Test
+    func `MIFARE Classic 1K: ATQA 0x0004, SAK 0x08`() {
         let type = CardIdentifier.identify(atqa: Data([0x00, 0x04]), sak: 0x08)
         #expect(type == .mifareClassic1K)
         #expect(type.family == .mifareClassic)
         #expect(type.isOperableOnIOS == false)
     }
 
-    @Test("MIFARE Classic 4K: ATQA 0x0002, SAK 0x18")
-    func identifyClassic4K() {
+    @Test
+    func `MIFARE Classic 4K: ATQA 0x0002, SAK 0x18`() {
         let type = CardIdentifier.identify(atqa: Data([0x00, 0x02]), sak: 0x18)
         #expect(type == .mifareClassic4K)
         #expect(type.isOperableOnIOS == false)
     }
 
-    @Test("MIFARE Mini: ATQA 0x0004, SAK 0x09")
-    func identifyMini() {
+    @Test
+    func `MIFARE Mini: ATQA 0x0004, SAK 0x09`() {
         let type = CardIdentifier.identify(atqa: Data([0x00, 0x04]), sak: 0x09)
         #expect(type == .mifareMini)
     }
 
-    @Test("MIFARE DESFire: ATQA 0x0344, SAK 0x20")
-    func identifyDESFire() {
+    @Test
+    func `MIFARE DESFire: ATQA 0x0344, SAK 0x20`() {
         let type = CardIdentifier.identify(atqa: Data([0x03, 0x44]), sak: 0x20)
         #expect(type == .mifareDesfire)
         #expect(type.family == .mifareDesfire)
         #expect(type.isOperableOnIOS == true)
     }
 
-    @Test("MIFARE Plus SL2 2K: ATQA 0x0004, SAK 0x10")
-    func identifyPlusSL2() {
+    @Test
+    func `MIFARE Plus SL2 2K: ATQA 0x0004, SAK 0x10`() {
         let type = CardIdentifier.identify(atqa: Data([0x00, 0x04]), sak: 0x10)
         #expect(type == .mifarePlusSL2_2K)
         #expect(type.family == .mifarePlus)
     }
 
-    @Test("MIFARE Plus SL2 4K: ATQA 0x0002, SAK 0x11")
-    func identifyPlusSL2_4K() {
+    @Test
+    func `MIFARE Plus SL2 4K: ATQA 0x0002, SAK 0x11`() {
         let type = CardIdentifier.identify(atqa: Data([0x00, 0x02]), sak: 0x11)
         #expect(type == .mifarePlusSL2_4K)
     }
 
-    @Test("Unknown card returns unknown with ATQA/SAK")
-    func identifyUnknown() {
+    @Test
+    func `Unknown card returns unknown with ATQA/SAK`() {
         let type = CardIdentifier.identify(atqa: Data([0xFF, 0xFF]), sak: 0x55)
         if case let .unknown(atqa, sak) = type {
             #expect(atqa == Data([0xFF, 0xFF]))
@@ -71,8 +71,8 @@ struct CardIdentifierTests {
         }
     }
 
-    @Test("Card type descriptions are non-empty")
-    func descriptionsNonEmpty() {
+    @Test
+    func `Card type descriptions are non-empty`() {
         let types: [CardType] = [
             .mifareUltralight, .mifareClassic1K, .mifareDesfire,
             .ntag213, .felicaLite, .iso15693_generic,

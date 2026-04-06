@@ -12,8 +12,8 @@ import Foundation
 import Testing
 
 struct APDUBuilderTests {
-    @Test("SELECT NDEF AID APDU bytes")
-    func selectNDEFAid() {
+    @Test
+    func `SELECT NDEF AID APDU bytes`() {
         let ndefAID = Data([0xD2, 0x76, 0x00, 0x00, 0x85, 0x01, 0x01])
         let apdu = CommandAPDU.select(aid: ndefAID)
         let bytes = apdu.bytes
@@ -29,8 +29,8 @@ struct APDUBuilderTests {
         #expect(bytes.count == 13)
     }
 
-    @Test("DESFire wrap command with data")
-    func desfireWrapWithData() {
+    @Test
+    func `DESFire wrap command with data`() {
         let apdu = CommandAPDU.desfireWrap(command: 0x5A, data: Data([0x01, 0x02, 0x03]))
         let bytes = apdu.bytes
 
@@ -46,8 +46,8 @@ struct APDUBuilderTests {
         #expect(bytes[8] == 0x00) // Le
     }
 
-    @Test("DESFire wrap command without data")
-    func desfireWrapNoData() {
+    @Test
+    func `DESFire wrap command without data`() {
         let apdu = CommandAPDU.desfireWrap(command: 0x6A)
         let bytes = apdu.bytes
 
@@ -60,8 +60,8 @@ struct APDUBuilderTests {
         #expect(bytes.count == 5)
     }
 
-    @Test("READ BINARY APDU")
-    func readBinary() {
+    @Test
+    func `READ BINARY APDU`() {
         let apdu = CommandAPDU.readBinary(offset: 0x0000, length: 0x0F)
         let bytes = apdu.bytes
         #expect(bytes[0] == 0x00) // CLA
@@ -71,22 +71,22 @@ struct APDUBuilderTests {
         #expect(bytes[4] == 0x0F) // Le
     }
 
-    @Test("CoreNFC expected length maps short Le zero to 256")
-    func coreNFCExpectedLengthForZeroLe() {
+    @Test
+    func `CoreNFC expected length maps short Le zero to 256`() {
         let apdu = CommandAPDU.internalAuthenticate(data: Data(repeating: 0xAA, count: 8))
         #expect(apdu.le == 0x00)
         #expect(apdu.nfcExpectedResponseLength == 256)
     }
 
-    @Test("CoreNFC expected length maps missing Le to wildcard")
-    func coreNFCExpectedLengthForMissingLe() {
+    @Test
+    func `CoreNFC expected length maps missing Le to wildcard`() {
         let apdu = CommandAPDU.selectPassportApplication()
         #expect(apdu.le == nil)
         #expect(apdu.nfcExpectedResponseLength == -1)
     }
 
-    @Test("ResponseAPDU success check")
-    func responseSuccess() {
+    @Test
+    func `ResponseAPDU success check`() {
         let resp = ResponseAPDU(data: Data([0x01, 0x02]), sw1: 0x90, sw2: 0x00)
         #expect(resp.isSuccess)
         #expect(resp.statusWord == 0x9000)
@@ -94,23 +94,23 @@ struct APDUBuilderTests {
         #expect(!resp.hasMoreFrames)
     }
 
-    @Test("ResponseAPDU needs GET RESPONSE")
-    func responseGetResponse() {
+    @Test
+    func `ResponseAPDU needs GET RESPONSE`() {
         let resp = ResponseAPDU(data: Data(), sw1: 0x61, sw2: 0x10)
         #expect(!resp.isSuccess)
         #expect(resp.needsGetResponse)
         #expect(resp.sw2 == 0x10) // 16 more bytes available
     }
 
-    @Test("ResponseAPDU DESFire AF chaining")
-    func responseAFChaining() {
+    @Test
+    func `ResponseAPDU DESFire AF chaining`() {
         let resp = ResponseAPDU(data: Data([0xAA, 0xBB]), sw1: 0x91, sw2: 0xAF)
         #expect(!resp.isSuccess)
         #expect(resp.hasMoreFrames)
     }
 
-    @Test("ResponseAPDU parse from raw bytes")
-    func responseFromRaw() throws {
+    @Test
+    func `ResponseAPDU parse from raw bytes`() throws {
         let raw = Data([0x01, 0x02, 0x03, 0x90, 0x00])
         let resp = ResponseAPDU(rawResponse: raw)
         #expect(resp != nil)
@@ -119,8 +119,8 @@ struct APDUBuilderTests {
         #expect(parsed.isSuccess)
     }
 
-    @Test("ResponseAPDU parse from too-short raw returns nil")
-    func responseFromShortRaw() {
+    @Test
+    func `ResponseAPDU parse from too-short raw returns nil`() {
         let resp = ResponseAPDU(rawResponse: Data([0x90]))
         #expect(resp == nil)
     }

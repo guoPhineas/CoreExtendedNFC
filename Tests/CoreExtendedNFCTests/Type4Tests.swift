@@ -14,25 +14,25 @@ import Testing
 struct Type4Tests {
     // MARK: - Constants
 
-    @Test("NDEF AID is correct")
-    func ndefAID() {
+    @Test
+    func `NDEF AID is correct`() {
         #expect(Type4Constants.ndefAID == Data([0xD2, 0x76, 0x00, 0x00, 0x85, 0x01, 0x01]))
     }
 
-    @Test("CC file ID is E103")
-    func ccFileID() {
+    @Test
+    func `CC file ID is E103`() {
         #expect(Type4Constants.ccFileID == Data([0xE1, 0x03]))
     }
 
-    @Test("NDEF file ID is E104")
-    func ndefFileID() {
+    @Test
+    func `NDEF file ID is E104`() {
         #expect(Type4Constants.ndefFileID == Data([0xE1, 0x04]))
     }
 
     // MARK: - CC Parsing
 
-    @Test("Parse valid CC file")
-    func parseCCFile() throws {
+    @Test
+    func `Parse valid CC file`() throws {
         // CC: len=000F, ver=20, MLe=003B, MLc=0034
         // TLV: T=04, L=06, FileID=E104, MaxSize=00FE, Read=00, Write=00
         let ccData = Data([
@@ -58,8 +58,8 @@ struct Type4Tests {
         #expect(cc.writeAccess == 0x00)
     }
 
-    @Test("CC parse rejects wrong TLV tag")
-    func ccRejectsWrongTLV() {
+    @Test
+    func `CC parse rejects wrong TLV tag`() {
         var ccData = Data(repeating: 0x00, count: 15)
         ccData[7] = 0x05 // wrong TLV tag (should be 0x04)
         ccData[8] = 0x06
@@ -69,8 +69,8 @@ struct Type4Tests {
         }
     }
 
-    @Test("CC parse rejects short data")
-    func ccRejectsShortData() {
+    @Test
+    func `CC parse rejects short data`() {
         #expect(throws: NFCError.self) {
             _ = try Type4CC(data: Data(repeating: 0x00, count: 10))
         }
@@ -78,8 +78,8 @@ struct Type4Tests {
 
     // MARK: - NDEF Read Sequence
 
-    @Test("Full NDEF read sequence via mock")
-    func readNDEFSequence() async throws {
+    @Test
+    func `Full NDEF read sequence via mock`() async throws {
         let mock = MockTransport()
 
         // NDEF message: "Hello"
@@ -112,8 +112,8 @@ struct Type4Tests {
         #expect(mock.sentAPDUs[0].p1 == 0x04) // by DF name
     }
 
-    @Test("NDEF read returns empty for zero-length")
-    func readEmptyNDEF() async throws {
+    @Test
+    func `NDEF read returns empty for zero-length`() async throws {
         let mock = MockTransport()
         mock.apduResponses = [
             ResponseAPDU(data: Data(), sw1: 0x90, sw2: 0x00),

@@ -150,6 +150,13 @@ class CardInfoDetailViewController: StackScrollController {
                 description: String(localized: "Application Identifier that responded to ISO 7816 SELECT on first contact."),
                 value: initialSelectedAID
             )
+            if let application = cardInfo.knownISO7816Application {
+                addInfoRow(
+                    icon: "list.bullet.rectangle", title: String(localized: "Known ISO 7816 Application"),
+                    description: application.note,
+                    value: application.displayName
+                )
+            }
         }
 
         addSectionFooter(String(localized: "ISO 14443 and ISO 7816 protocol parameters detected during card identification."))

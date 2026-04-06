@@ -17,8 +17,8 @@ import Testing
 struct CryptoTests {
     // MARK: - 3DES
 
-    @Test("3DES-CBC encrypt and decrypt round-trip")
-    func tripleDESRoundTrip() throws {
+    @Test
+    func `3DES-CBC encrypt and decrypt round-trip`() throws {
         let key = Data([
             0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0xCD, 0xEF,
             0xFE, 0xDC, 0xBA, 0x98, 0x76, 0x54, 0x32, 0x10,
@@ -33,8 +33,8 @@ struct CryptoTests {
         #expect(decrypted == plaintext)
     }
 
-    @Test("3DES 16-byte key auto-expanded to 24 bytes")
-    func tripleDESKeyExpansion() throws {
+    @Test
+    func `3DES 16-byte key auto-expanded to 24 bytes`() throws {
         // 16-byte key should produce same result as 24-byte K1||K2||K1
         let key16 = Data([
             0xAB, 0x94, 0xFD, 0xEC, 0xF2, 0x67, 0x4F, 0xDF,
@@ -50,8 +50,8 @@ struct CryptoTests {
 
     // MARK: - DES
 
-    @Test("DES-CBC encrypt and decrypt round-trip")
-    func desCBCRoundTrip() throws {
+    @Test
+    func `DES-CBC encrypt and decrypt round-trip`() throws {
         let key = Data([0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0xCD, 0xEF])
         let plaintext = Data([0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48])
 
@@ -60,8 +60,8 @@ struct CryptoTests {
         #expect(decrypted == plaintext)
     }
 
-    @Test("DES-ECB encrypt and decrypt round-trip")
-    func desECBRoundTrip() throws {
+    @Test
+    func `DES-ECB encrypt and decrypt round-trip`() throws {
         let key = Data([0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0xCD, 0xEF])
         let plaintext = Data([0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48])
 
@@ -72,8 +72,8 @@ struct CryptoTests {
 
     // MARK: - AES
 
-    @Test("AES-CBC encrypt and decrypt round-trip (128-bit key)")
-    func aesCBCRoundTrip() throws {
+    @Test
+    func `AES-CBC encrypt and decrypt round-trip (128-bit key)`() throws {
         let key = Data(repeating: 0x00, count: 16)
         let iv = Data(repeating: 0x00, count: 16)
         let plaintext = Data(repeating: 0x42, count: 32) // 2 blocks
@@ -83,8 +83,8 @@ struct CryptoTests {
         #expect(decrypted == plaintext)
     }
 
-    @Test("AES-ECB encrypt known vector — NIST FIPS 197 Appendix B")
-    func aesECBKnownVector() throws {
+    @Test
+    func `AES-ECB encrypt known vector — NIST FIPS 197 Appendix B`() throws {
         // NIST FIPS 197, Appendix B: AES-128 ECB, key=all zeros, plaintext=all zeros
         // Reference: https://csrc.nist.gov/pubs/fips/197/final
         let key = Data(repeating: 0x00, count: 16)
@@ -104,16 +104,16 @@ struct CryptoTests {
 
     // Reference: ISO/IEC 9797-1:2011 Padding Method 2
 
-    @Test("ISO 9797 pad appends 0x80 and fills to block size")
-    func paddingBasic() {
+    @Test
+    func `ISO 9797 pad appends 0x80 and fills to block size`() {
         let data = Data([0x01, 0x02, 0x03])
         let padded = ISO9797Padding.pad(data, blockSize: 8)
         #expect(padded.count == 8)
         #expect(padded == Data([0x01, 0x02, 0x03, 0x80, 0x00, 0x00, 0x00, 0x00]))
     }
 
-    @Test("ISO 9797 pad full block adds extra block")
-    func paddingFullBlock() {
+    @Test
+    func `ISO 9797 pad full block adds extra block`() {
         let data = Data([0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08])
         let padded = ISO9797Padding.pad(data, blockSize: 8)
         #expect(padded.count == 16)
@@ -121,15 +121,15 @@ struct CryptoTests {
         #expect(padded[9 ..< 16] == Data(repeating: 0x00, count: 7))
     }
 
-    @Test("ISO 9797 unpad removes padding correctly")
-    func unpadding() {
+    @Test
+    func `ISO 9797 unpad removes padding correctly`() {
         let padded = Data([0x01, 0x02, 0x03, 0x80, 0x00, 0x00, 0x00, 0x00])
         let unpadded = ISO9797Padding.unpad(padded)
         #expect(unpadded == Data([0x01, 0x02, 0x03]))
     }
 
-    @Test("ISO 9797 unpad with no padding returns data as-is")
-    func unpadNoPadding() {
+    @Test
+    func `ISO 9797 unpad with no padding returns data as-is`() {
         let data = Data([0x01, 0x02, 0x03, 0x04])
         let result = ISO9797Padding.unpad(data)
         #expect(result == data)
@@ -140,8 +140,8 @@ struct CryptoTests {
     // Reference: ISO/IEC 9797-1:2011, Algorithm 3 (Retail MAC)
     // Split 16-byte key into Ka||Kb, DES-CBC with Ka, decrypt last block with Kb, encrypt with Ka
 
-    @Test("ISO 9797-1 MAC Algorithm 3 requires 16-byte key")
-    func macKeyValidation() throws {
+    @Test
+    func `ISO 9797-1 MAC Algorithm 3 requires 16-byte key`() throws {
         let badKey = Data(repeating: 0x01, count: 8)
         let message = ISO9797Padding.pad(Data(repeating: 0xAA, count: 8), blockSize: 8)
 
@@ -150,16 +150,16 @@ struct CryptoTests {
         }
     }
 
-    @Test("ISO 9797-1 MAC returns 8 bytes")
-    func macOutputSize() throws {
+    @Test
+    func `ISO 9797-1 MAC returns 8 bytes`() throws {
         let key = Data(repeating: 0x01, count: 16)
         let message = ISO9797Padding.pad(Data(repeating: 0xAA, count: 8), blockSize: 8)
         let mac = try ISO9797MAC.mac(key: key, message: message)
         #expect(mac.count == 8)
     }
 
-    @Test("ISO 9797-1 MAC deterministic")
-    func macDeterministic() throws {
+    @Test
+    func `ISO 9797-1 MAC deterministic`() throws {
         let key = Data(repeating: 0x42, count: 16)
         let message = ISO9797Padding.pad(Data([0x01, 0x02, 0x03, 0x04]), blockSize: 8)
         let mac1 = try ISO9797MAC.mac(key: key, message: message)
@@ -172,8 +172,8 @@ struct CryptoTests {
     // All 4 AES-CMAC vectors from RFC 4493 Section 4:
     // https://www.rfc-editor.org/rfc/rfc4493#section-4
 
-    @Test("AES-CMAC RFC 4493 test vector 1: empty message")
-    func aesCMACEmpty() throws {
+    @Test
+    func `AES-CMAC RFC 4493 test vector 1: empty message`() throws {
         // RFC 4493 Section 4, Example 1: key = 2b7e1516...
         let key = Data([
             0x2B, 0x7E, 0x15, 0x16, 0x28, 0xAE, 0xD2, 0xA6,
@@ -187,8 +187,8 @@ struct CryptoTests {
         #expect(mac == expected)
     }
 
-    @Test("AES-CMAC RFC 4493 test vector 2: 16-byte message")
-    func aesCMAC16Bytes() throws {
+    @Test
+    func `AES-CMAC RFC 4493 test vector 2: 16-byte message`() throws {
         let key = Data([
             0x2B, 0x7E, 0x15, 0x16, 0x28, 0xAE, 0xD2, 0xA6,
             0xAB, 0xF7, 0x15, 0x88, 0x09, 0xCF, 0x4F, 0x3C,
@@ -205,8 +205,8 @@ struct CryptoTests {
         #expect(mac == expected)
     }
 
-    @Test("AES-CMAC RFC 4493 test vector 3: 40-byte message")
-    func aesCMAC40Bytes() throws {
+    @Test
+    func `AES-CMAC RFC 4493 test vector 3: 40-byte message`() throws {
         let key = Data([
             0x2B, 0x7E, 0x15, 0x16, 0x28, 0xAE, 0xD2, 0xA6,
             0xAB, 0xF7, 0x15, 0x88, 0x09, 0xCF, 0x4F, 0x3C,
@@ -226,8 +226,8 @@ struct CryptoTests {
         #expect(mac == expected)
     }
 
-    @Test("AES-CMAC RFC 4493 test vector 4: 64-byte message")
-    func aesCMAC64Bytes() throws {
+    @Test
+    func `AES-CMAC RFC 4493 test vector 4: 64-byte message`() throws {
         let key = Data([
             0x2B, 0x7E, 0x15, 0x16, 0x28, 0xAE, 0xD2, 0xA6,
             0xAB, 0xF7, 0x15, 0x88, 0x09, 0xCF, 0x4F, 0x3C,
@@ -252,14 +252,14 @@ struct CryptoTests {
 
     // MARK: - Hashing
 
-    @Test("SHA-1 produces 20-byte digest")
-    func sha1Length() {
+    @Test
+    func `SHA-1 produces 20-byte digest`() {
         let hash = HashUtils.sha1(Data("test".utf8))
         #expect(hash.count == 20)
     }
 
-    @Test("SHA-1 known value — NIST FIPS 180-4 example")
-    func sha1Known() {
+    @Test
+    func `SHA-1 known value — NIST FIPS 180-4 example`() {
         // SHA-1("abc") per NIST FIPS 180-4, Section B.1
         // Reference: https://csrc.nist.gov/pubs/fips/180-4/upd1/final
         let hash = HashUtils.sha1(Data("abc".utf8))
@@ -271,8 +271,8 @@ struct CryptoTests {
         #expect(hash == expected)
     }
 
-    @Test("SHA-256 known value — NIST FIPS 180-4 example")
-    func sha256Known() {
+    @Test
+    func `SHA-256 known value — NIST FIPS 180-4 example`() {
         // SHA-256("abc") per NIST FIPS 180-4, Section B.1
         // Reference: https://csrc.nist.gov/pubs/fips/180-4/upd1/final
         let hash = HashUtils.sha256(Data("abc".utf8))
@@ -285,14 +285,14 @@ struct CryptoTests {
         #expect(hash == expected)
     }
 
-    @Test("SHA-384 produces 48-byte digest")
-    func sha384Length() {
+    @Test
+    func `SHA-384 produces 48-byte digest`() {
         let hash = HashUtils.sha384(Data("test".utf8))
         #expect(hash.count == 48)
     }
 
-    @Test("SHA-512 produces 64-byte digest")
-    func sha512Length() {
+    @Test
+    func `SHA-512 produces 64-byte digest`() {
         let hash = HashUtils.sha512(Data("test".utf8))
         #expect(hash.count == 64)
     }
@@ -304,8 +304,8 @@ struct CryptoTests {
     // Cross-ref: JMRTD Util.computeKeySeedForBAC()
     // https://github.com/jmrtd/jmrtd/blob/master/jmrtd/src/main/java/org/jmrtd/Util.java
 
-    @Test("ICAO 9303 Kseed derivation from MRZ key")
-    func kseedDerivation() {
+    @Test
+    func `ICAO 9303 Kseed derivation from MRZ key`() {
         // From ICAO 9303 Part 11, Appendix D.1
         // Document number: L898902C<, DOB: 690806, DOE: 940623
         // MRZ Key: L898902C<369080619406236
@@ -322,8 +322,8 @@ struct CryptoTests {
         #expect(kseed == expected)
     }
 
-    @Test("ICAO 9303 derive encryption key — Appendix D.1 Kenc")
-    func deriveEncKey() {
+    @Test
+    func `ICAO 9303 derive encryption key — Appendix D.1 Kenc`() {
         // ICAO 9303 Part 11, Appendix D.1: Kseed → Kenc
         // Kseed = 239AB9CB282DAF66231DC5A4DF6BFBAE
         // Expected Kenc = AB94FDECF2674FDFB9B391F85D7F76F2
@@ -342,8 +342,8 @@ struct CryptoTests {
         #expect(kenc == expected)
     }
 
-    @Test("ICAO 9303 derive MAC key — Appendix D.1 Kmac")
-    func deriveMacKey() {
+    @Test
+    func `ICAO 9303 derive MAC key — Appendix D.1 Kmac`() {
         // Expected Kmac = 7962D9ECE03D1ACD4C76089DCE131543
         let keySeed = Data([
             0x23, 0x9A, 0xB9, 0xCB, 0x28, 0x2D, 0xAF, 0x66,
@@ -360,8 +360,8 @@ struct CryptoTests {
         #expect(kmac == expected)
     }
 
-    @Test("DES parity adjustment")
-    func desParityAdjust() {
+    @Test
+    func `DES parity adjustment`() {
         // Each byte should have odd number of 1-bits after parity adjustment
         let input = Data([0x00, 0xFF, 0xAA, 0x55, 0x80, 0x01, 0x7E, 0x3C])
         let adjusted = KeyDerivation.adjustParity(input)
@@ -372,8 +372,8 @@ struct CryptoTests {
 
     // MARK: - ICAO 9303 Full KDF from MRZ
 
-    @Test("ICAO 9303 full key derivation pipeline")
-    func fullKDFPipeline() {
+    @Test
+    func `ICAO 9303 full key derivation pipeline`() {
         // ICAO 9303 Part 11, Appendix D.1 official worked example
         // Document number: L898902C<, DOB: 690806, DOE: 940623
         let mrzKey = MRZKeyGenerator.computeMRZKey(

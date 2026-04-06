@@ -13,8 +13,8 @@ import Foundation
 import Testing
 
 struct DESFireFileOpsTests {
-    @Test("READ_DATA encodes 24-bit offset and length little-endian")
-    func readDataEncodesUInt24Payload() async throws {
+    @Test
+    func `READ_DATA encodes 24-bit offset and length little-endian`() async throws {
         let mock = MockTransport()
         mock.apduResponses = [
             ResponseAPDU(data: Data([0xAA]), sw1: 0x91, sw2: 0x00),
@@ -28,8 +28,8 @@ struct DESFireFileOpsTests {
         #expect(mock.sentAPDUs[0].data == Data([0x09, 0x56, 0x34, 0x12, 0xEF, 0xCD, 0xAB]))
     }
 
-    @Test("READ_RECORDS encodes 24-bit offset and count little-endian")
-    func readRecordsEncodesUInt24Payload() async throws {
+    @Test
+    func `READ_RECORDS encodes 24-bit offset and count little-endian`() async throws {
         let mock = MockTransport()
         mock.apduResponses = [
             ResponseAPDU(data: Data([0xBB]), sw1: 0x91, sw2: 0x00),
@@ -43,8 +43,8 @@ struct DESFireFileOpsTests {
         #expect(mock.sentAPDUs[0].data == Data([0x07, 0x03, 0x02, 0x01, 0xC0, 0xB0, 0xA0]))
     }
 
-    @Test("READ_DATA rejects offsets larger than 24 bits")
-    func readDataRejectsOversizedOffset() async {
+    @Test
+    func `READ_DATA rejects offsets larger than 24 bits`() async {
         let mock = MockTransport()
         let commands = DESFireCommands(transport: mock)
 
@@ -58,8 +58,8 @@ struct DESFireFileOpsTests {
         #expect(mock.sentAPDUs.isEmpty)
     }
 
-    @Test("READ_RECORDS rejects counts larger than 24 bits")
-    func readRecordsRejectsOversizedCount() async {
+    @Test
+    func `READ_RECORDS rejects counts larger than 24 bits`() async {
         let mock = MockTransport()
         let commands = DESFireCommands(transport: mock)
 

@@ -12,8 +12,8 @@ import Foundation
 import Testing
 
 struct NTAGTests {
-    @Test("READ_SIG sends 0x3C 0x00")
-    func readSignature() async throws {
+    @Test
+    func `READ_SIG sends 0x3C 0x00`() async throws {
         let mock = MockTransport()
         mock.responses = [Data(repeating: 0xEE, count: 32)]
         let commands = UltralightCommands(transport: mock)
@@ -23,8 +23,8 @@ struct NTAGTests {
         #expect(sig.count == 32)
     }
 
-    @Test("READ_CNT sends 0x39 and parses 3-byte LE counter")
-    func readCounter() async throws {
+    @Test
+    func `READ_CNT sends 0x39 and parses 3-byte LE counter`() async throws {
         let mock = MockTransport()
         // Counter value: 0x01 + 0x02<<8 + 0x03<<16 = 197121
         mock.responses = [Data([0x01, 0x02, 0x03])]
@@ -35,15 +35,15 @@ struct NTAGTests {
         #expect(count == 197_121)
     }
 
-    @Test("NTAG variant detection from GET_VERSION")
-    func variantDetection() throws {
+    @Test
+    func `NTAG variant detection from GET_VERSION`() throws {
         let ntag213Data = Data([0x00, 0x04, 0x04, 0x02, 0x01, 0x00, 0x0F, 0x03])
         let version = try UltralightVersionResponse(data: ntag213Data)
         #expect(NTAGVariant.detect(from: version) == .ntag213)
     }
 
-    @Test("NTAG memory map static accessors")
-    func memoryMapAccessors() {
+    @Test
+    func `NTAG memory map static accessors`() {
         #expect(UltralightMemoryMap.ntag213.totalPages == 45)
         #expect(UltralightMemoryMap.ntag215.totalPages == 135)
         #expect(UltralightMemoryMap.ntag216.totalPages == 231)

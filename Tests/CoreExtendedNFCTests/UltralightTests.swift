@@ -14,8 +14,8 @@ import Testing
 struct UltralightTests {
     // MARK: - Command Building
 
-    @Test("READ command sends correct bytes")
-    func readCommand() async throws {
+    @Test
+    func `READ command sends correct bytes`() async throws {
         let mock = MockTransport()
         mock.responses = [Data(repeating: 0xAA, count: 16)]
         let commands = UltralightCommands(transport: mock)
@@ -25,8 +25,8 @@ struct UltralightTests {
         #expect(data.count == 16)
     }
 
-    @Test("WRITE command sends correct bytes")
-    func writeCommand() async throws {
+    @Test
+    func `WRITE command sends correct bytes`() async throws {
         let mock = MockTransport()
         mock.responses = [Data([0x0A])] // ACK
         let commands = UltralightCommands(transport: mock)
@@ -35,8 +35,8 @@ struct UltralightTests {
         #expect(mock.sentCommands[0] == Data([0xA2, 0x04, 0x01, 0x02, 0x03, 0x04]))
     }
 
-    @Test("WRITE rejects non-4-byte data")
-    func writeRejectsWrongSize() async {
+    @Test
+    func `WRITE rejects non-4-byte data`() async {
         let mock = MockTransport()
         let commands = UltralightCommands(transport: mock)
 
@@ -45,8 +45,8 @@ struct UltralightTests {
         }
     }
 
-    @Test("FAST_READ command sends correct bytes")
-    func fastReadCommand() async throws {
+    @Test
+    func `FAST_READ command sends correct bytes`() async throws {
         let mock = MockTransport()
         // 3 pages = 12 bytes
         mock.responses = [Data(repeating: 0xBB, count: 12)]
@@ -57,8 +57,8 @@ struct UltralightTests {
         #expect(data.count == 12)
     }
 
-    @Test("GET_VERSION command sends 0x60")
-    func getVersionCommand() async throws {
+    @Test
+    func `GET_VERSION command sends 0x60`() async throws {
         let mock = MockTransport()
         // NTAG213 version response
         mock.responses = [Data([0x00, 0x04, 0x04, 0x02, 0x01, 0x00, 0x0F, 0x03])]
@@ -71,8 +71,8 @@ struct UltralightTests {
 
     // MARK: - Version Parsing
 
-    @Test("Parse NTAG213 version response")
-    func parseNTAG213() throws {
+    @Test
+    func `Parse NTAG213 version response`() throws {
         let data = Data([0x00, 0x04, 0x04, 0x02, 0x01, 0x00, 0x0F, 0x03])
         let version = try UltralightVersionResponse(data: data)
         #expect(version.vendorID == 0x04) // NXP
@@ -83,8 +83,8 @@ struct UltralightTests {
         #expect(version.userPages == 36)
     }
 
-    @Test("Parse NTAG215 version response")
-    func parseNTAG215() throws {
+    @Test
+    func `Parse NTAG215 version response`() throws {
         let data = Data([0x00, 0x04, 0x04, 0x02, 0x01, 0x00, 0x11, 0x03])
         let version = try UltralightVersionResponse(data: data)
         #expect(version.cardType == .ntag215)
@@ -92,8 +92,8 @@ struct UltralightTests {
         #expect(version.userPages == 126)
     }
 
-    @Test("Parse NTAG216 version response")
-    func parseNTAG216() throws {
+    @Test
+    func `Parse NTAG216 version response`() throws {
         let data = Data([0x00, 0x04, 0x04, 0x02, 0x01, 0x00, 0x13, 0x03])
         let version = try UltralightVersionResponse(data: data)
         #expect(version.cardType == .ntag216)
@@ -101,16 +101,16 @@ struct UltralightTests {
         #expect(version.userPages == 222)
     }
 
-    @Test("Parse Ultralight EV1 MF0UL11 version response")
-    func parseULEV1_11() throws {
+    @Test
+    func `Parse Ultralight EV1 MF0UL11 version response`() throws {
         let data = Data([0x00, 0x04, 0x03, 0x01, 0x01, 0x00, 0x0B, 0x03])
         let version = try UltralightVersionResponse(data: data)
         #expect(version.productType == 0x03) // Ultralight
         #expect(version.cardType == .mifareUltralightEV1_MF0UL11)
     }
 
-    @Test("Parse Ultralight EV1 MF0UL21 version response")
-    func parseULEV1_21() throws {
+    @Test
+    func `Parse Ultralight EV1 MF0UL21 version response`() throws {
         let data = Data([0x00, 0x04, 0x03, 0x01, 0x01, 0x00, 0x0E, 0x03])
         let version = try UltralightVersionResponse(data: data)
         #expect(version.cardType == .mifareUltralightEV1_MF0UL21)
@@ -118,8 +118,8 @@ struct UltralightTests {
 
     // MARK: - Memory Map
 
-    @Test("NTAG213 memory map")
-    func ntag213MemoryMap() {
+    @Test
+    func `NTAG213 memory map`() {
         let map = UltralightMemoryMap.forType(.ntag213)
         #expect(map.totalPages == 45)
         #expect(map.userDataStart == 4)
@@ -128,8 +128,8 @@ struct UltralightTests {
         #expect(map.dynamicLockStart == 40)
     }
 
-    @Test("NTAG215 memory map")
-    func ntag215MemoryMap() {
+    @Test
+    func `NTAG215 memory map`() {
         let map = UltralightMemoryMap.forType(.ntag215)
         #expect(map.totalPages == 135)
         #expect(map.userDataStart == 4)
@@ -137,8 +137,8 @@ struct UltralightTests {
         #expect(map.configStart == 131)
     }
 
-    @Test("Ultralight basic memory map")
-    func ultralightMemoryMap() {
+    @Test
+    func `Ultralight basic memory map`() {
         let map = UltralightMemoryMap.forType(.mifareUltralight)
         #expect(map.totalPages == 16)
         #expect(map.userDataStart == 4)
@@ -146,8 +146,8 @@ struct UltralightTests {
         #expect(map.configStart == nil)
     }
 
-    @Test("Ultralight C memory map excludes secret key pages from config range")
-    func ultralightCMemoryMap() {
+    @Test
+    func `Ultralight C memory map excludes secret key pages from config range`() {
         let map = UltralightMemoryMap.forType(.mifareUltralightC)
         #expect(map.totalPages == 48)
         #expect(map.userDataStart == 4)
@@ -158,8 +158,8 @@ struct UltralightTests {
 
     // MARK: - PWD_AUTH
 
-    @Test("PWD_AUTH sends correct bytes")
-    func pwdAuth() async throws {
+    @Test
+    func `PWD_AUTH sends correct bytes`() async throws {
         let mock = MockTransport()
         mock.responses = [Data([0xAB, 0xCD])] // PACK response
         let commands = UltralightCommands(transport: mock)
@@ -169,8 +169,8 @@ struct UltralightTests {
         #expect(pack == Data([0xAB, 0xCD]))
     }
 
-    @Test("Ultralight C AUTHENTICATE performs the 3DES challenge flow")
-    func ultralightCAuthenticate() async throws {
+    @Test
+    func `Ultralight C AUTHENTICATE performs the 3DES challenge flow`() async throws {
         let key = try #require(Data(hexString: "49454D4B41455242214E4143554F5946"))
         let rndA = try #require(Data(hexString: "0011223344556677"))
         let rndB = try #require(Data(hexString: "214E4143554F5946"))
@@ -202,8 +202,8 @@ struct UltralightTests {
         #expect(mock.sentCommands[1] == Data([0xAF]) + challengeCiphertext)
     }
 
-    @Test("Ultralight C access configuration parses AUTH0 and AUTH1")
-    func ultralightCAccessConfiguration() async throws {
+    @Test
+    func `Ultralight C access configuration parses AUTH0 and AUTH1`() async throws {
         let mock = MockTransport()
         mock.responses = [
             Data([

@@ -1,7 +1,7 @@
 import ConfigurableKit
 import CoreExtendedNFC
-import SPIndicator
 import SnapKit
+import SPIndicator
 import Then
 import UIKit
 

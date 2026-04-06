@@ -24,8 +24,8 @@ import Testing
 struct ActiveAuthenticationTests {
     // MARK: - AA Status Semantics
 
-    @Test("ActiveAuthStatus has correct status values")
-    func activeAuthStatusValues() {
+    @Test
+    func `ActiveAuthStatus has correct status values`() {
         #expect(ActiveAuthStatus.notImplemented.rawValue == "notImplemented")
         #expect(ActiveAuthStatus.verified.rawValue == "verified")
         #expect(ActiveAuthStatus.failed.rawValue == "failed")
@@ -33,8 +33,8 @@ struct ActiveAuthenticationTests {
         #expect(ActiveAuthStatus.unsupportedKeyType.rawValue == "unsupportedKeyType")
     }
 
-    @Test("ActiveAuthenticationResult with notImplemented status")
-    func aaResultNotImplemented() {
+    @Test
+    func `ActiveAuthenticationResult with notImplemented status`() {
         let result = ActiveAuthenticationResult(
             success: false,
             details: "RSA AA requires message recovery",
@@ -44,16 +44,16 @@ struct ActiveAuthenticationTests {
         #expect(result.status == .notImplemented)
     }
 
-    @Test("ActiveAuthenticationResult default status is .verified")
-    func aaResultDefaultStatus() {
+    @Test
+    func `ActiveAuthenticationResult default status is .verified`() {
         let result = ActiveAuthenticationResult(success: true, details: "OK")
         #expect(result.status == .verified)
     }
 
     // MARK: - ECDSA Plain Signature → DER Conversion Helper
 
-    @Test("Plain ECDSA signature (r||s) structure for P-256")
-    func ecdsaPlainSignatureStructure() {
+    @Test
+    func `Plain ECDSA signature (r||s) structure for P-256`() {
         // A plain ECDSA signature for P-256 is 64 bytes: r (32) || s (32)
         let r = Data(repeating: 0xAA, count: 32)
         let s = Data(repeating: 0xBB, count: 32)
@@ -70,8 +70,8 @@ struct ActiveAuthenticationTests {
         #expect(sComponent == s)
     }
 
-    @Test("Plain ECDSA signature for P-384 is 96 bytes")
-    func ecdsaPlainSignatureP384() {
+    @Test
+    func `Plain ECDSA signature for P-384 is 96 bytes`() {
         let plainSig = Data(repeating: 0xCC, count: 96)
         let componentSize = plainSig.count / 2
         #expect(componentSize == 48, "P-384 r and s components should be 48 bytes each")
@@ -79,8 +79,8 @@ struct ActiveAuthenticationTests {
 
     // MARK: - DG15 RSA Key Export for SecKeyCreateWithData
 
-    @Test("RSA public key modulus and exponent from DG15 can form valid DER")
-    func dg15RSAKeyExport() throws {
+    @Test
+    func `RSA public key modulus and exponent from DG15 can form valid DER`() throws {
         // Build a DG15 with known RSA key
         let rsaOID = ChipAuthenticationHandler.encodeOID("1.2.840.113549.1.1.1")
         let algIdContent = ASN1Parser.encodeTLV(tag: 0x06, value: rsaOID) +
@@ -129,8 +129,8 @@ struct ActiveAuthenticationTests {
 
     // MARK: - DG15 ECDSA Key Export
 
-    @Test("ECDSA public key from DG15 with brainpool curve returns unknown curveOID format")
-    func dg15ECDSABrainpool() throws {
+    @Test
+    func `ECDSA public key from DG15 with brainpool curve returns unknown curveOID format`() throws {
         let ecOID = ChipAuthenticationHandler.encodeOID("1.2.840.10045.2.1")
         // BrainpoolP256r1 OID: 1.3.36.3.3.2.8.1.1.7
         let curveOID = ChipAuthenticationHandler.encodeOID("1.3.36.3.3.2.8.1.1.7")
@@ -161,8 +161,8 @@ struct ActiveAuthenticationTests {
         }
     }
 
-    @Test("ECDSA Active Authentication verifier succeeds for P-256 SHA-256")
-    func ecdsaActiveAuthenticationVerify() throws {
+    @Test
+    func `ECDSA Active Authentication verifier succeeds for P-256 SHA-256`() throws {
         let privateKey = P256.Signing.PrivateKey()
         let challenge = Data([0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0xCD, 0xEF])
         let derSignature = try privateKey.signature(for: challenge).derRepresentation
@@ -194,8 +194,8 @@ struct ActiveAuthenticationTests {
         #expect(result.status == .verified)
     }
 
-    @Test("ECDSA Active Authentication verifier fails for wrong challenge")
-    func ecdsaActiveAuthenticationWrongChallenge() throws {
+    @Test
+    func `ECDSA Active Authentication verifier fails for wrong challenge`() throws {
         let privateKey = P256.Signing.PrivateKey()
         let challenge = Data([0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0xCD, 0xEF])
         let derSignature = try privateKey.signature(for: challenge).derRepresentation
@@ -228,8 +228,8 @@ struct ActiveAuthenticationTests {
     }
 
     #if canImport(OpenSSL)
-        @Test("RSA Active Authentication verifier succeeds for ISO 9796-2 recovered message")
-        func rsaActiveAuthenticationVerify() throws {
+        @Test
+        func `RSA Active Authentication verifier succeeds for ISO 9796-2 recovered message`() throws {
             let challenge = Data([0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88])
             let privateKey = try makeRSATestKey(bits: 1024)
             defer { EVP_PKEY_free(privateKey) }

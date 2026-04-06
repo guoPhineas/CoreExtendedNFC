@@ -13,8 +13,8 @@ import Foundation
 import Testing
 
 struct TopLevelIntegrationTests {
-    @Test("Top-level Ultralight C dump keeps readable pages and reports unreadable key tail")
-    func dumpUltralightCStopsBeforeSecretKeyPages() async throws {
+    @Test
+    func `Top-level Ultralight C dump keeps readable pages and reports unreadable key tail`() async throws {
         let mock = MockTransport()
         mock.responses = stride(from: 0, through: 40, by: 4).map { startPage in
             Data((0 ..< 16).map { UInt8(startPage + $0) })
@@ -31,8 +31,8 @@ struct TopLevelIntegrationTests {
         #expect(mock.sentCommands.last == Data([0x30, 0x28]))
     }
 
-    @Test("Top-level Ultralight C dump reports auth boundary when later pages are protected")
-    func dumpUltralightCProtectedTail() async throws {
+    @Test
+    func `Top-level Ultralight C dump reports auth boundary when later pages are protected`() async throws {
         let mock = MockTransport()
         mock.responses = stride(from: 0, through: 36, by: 4).map { startPage in
             Data((0 ..< 16).map { UInt8(startPage + $0) })
@@ -46,8 +46,8 @@ struct TopLevelIntegrationTests {
         #expect(dump.facts.contains(where: { $0.key == "Unauthenticated Boundary" && $0.value == "Page 40" }))
     }
 
-    @Test("Top-level Type 4 dump captures NDEF and file metadata")
-    func dumpType4NDEF() async throws {
+    @Test
+    func `Top-level Type 4 dump captures NDEF and file metadata`() async throws {
         let mock = MockTransport()
         let ndefMessage = Data([0xD1, 0x01, 0x05, 0x54, 0x02, 0x65, 0x6E, 0x48, 0x69])
 
@@ -77,8 +77,8 @@ struct TopLevelIntegrationTests {
         #expect(dump.facts.contains(where: { $0.key == "NDEF Bytes" && $0.value == "\(ndefMessage.count)" }))
     }
 
-    @Test("Top-level ISO 15693 dump reads blocks and lock state")
-    func dumpISO15693Blocks() async throws {
+    @Test
+    func `Top-level ISO 15693 dump reads blocks and lock state`() async throws {
         let uid = Data([0xE0, 0x04, 0x01, 0x23, 0x45, 0x67, 0x89, 0xAB])
         let blocks = [
             Data([0x10, 0x11, 0x12, 0x13]),
@@ -109,8 +109,8 @@ struct TopLevelIntegrationTests {
         #expect(dump.facts.contains(where: { $0.key == "Blocks" && $0.value == "\(blocks.count)" }))
     }
 
-    @Test("Top-level FeliCa dump reads Type 3 NDEF blocks")
-    func dumpFeliCaType3() async throws {
+    @Test
+    func `Top-level FeliCa dump reads Type 3 NDEF blocks`() async throws {
         let idm = Data([0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08])
         let systemCode = Data([0x12, 0xFC])
         let ndef = Data([
@@ -134,8 +134,8 @@ struct TopLevelIntegrationTests {
         #expect(dump.facts.contains(where: { $0.key == "System Code" && $0.value == systemCode.hexString }))
     }
 
-    @Test("Top-level FeliCa dump captures additional plain service snapshots")
-    func dumpFeliCaAdditionalServices() async throws {
+    @Test
+    func `Top-level FeliCa dump captures additional plain service snapshots`() async throws {
         let idm = Data([0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28])
         let systemCode = Data([0x88, 0xB4])
         let extraServiceCode = Data([0x8B, 0x00])
@@ -166,8 +166,8 @@ struct TopLevelIntegrationTests {
         #expect(dump.facts.contains(where: { $0.key == "Plain Service Snapshots" && $0.value == "1" }))
     }
 
-    @Test("ISO 7816 refiner classifies passport from initial AID")
-    func refineISO7816PassportFromInitialAID() async throws {
+    @Test
+    func `ISO 7816 refiner classifies passport from initial AID`() async throws {
         let transport = QueuedISO7816Transport(initialAID: PassportConstants.eMRTDAID.hexString)
         let info = CardInfo(
             type: .smartMX,
@@ -181,8 +181,8 @@ struct TopLevelIntegrationTests {
         #expect(transport.sentAPDUs.isEmpty)
     }
 
-    @Test("ISO 7816 refiner probes Type 4 when metadata is absent")
-    func refineISO7816Type4ByProbe() async throws {
+    @Test
+    func `ISO 7816 refiner probes Type 4 when metadata is absent`() async throws {
         let transport = QueuedISO7816Transport(
             responses: [
                 ResponseAPDU(data: Data(), sw1: 0x6A, sw2: 0x82),
@@ -199,8 +199,8 @@ struct TopLevelIntegrationTests {
         #expect(transport.sentAPDUs.count == 4)
     }
 
-    @Test("ISO 7816 refiner does not trust permissive passport SELECT over Type 4 CC")
-    func refineISO7816Type4BeatsPermissivePassportSelect() async throws {
+    @Test
+    func `ISO 7816 refiner does not trust permissive passport SELECT over Type 4 CC`() async throws {
         let transport = QueuedISO7816Transport(
             responses: [
                 ResponseAPDU(data: Data(), sw1: 0x90, sw2: 0x00),
@@ -217,8 +217,8 @@ struct TopLevelIntegrationTests {
         #expect(transport.sentAPDUs.count == 4)
     }
 
-    @Test("ISO 7816 refiner falls back to DESFire probe")
-    func refineISO7816DESFireByProbe() async throws {
+    @Test
+    func `ISO 7816 refiner falls back to DESFire probe`() async throws {
         let transport = QueuedISO7816Transport(
             responses: [
                 ResponseAPDU(data: Data(), sw1: 0x6A, sw2: 0x82),

@@ -15,40 +15,40 @@ import Foundation
 import Testing
 
 struct ISO15693Tests {
-    @Test("ICODE SLIX configuration")
-    func icodeSlixConfig() {
+    @Test
+    func `ICODE SLIX configuration`() {
         let config = ISO15693Memory.icodeSLIX
         #expect(config.blockSize == 4)
         #expect(config.blockCount == 32)
         #expect(config.totalBytes == 128)
     }
 
-    @Test("ICODE SLIX2 configuration")
-    func icodeSlix2Config() {
+    @Test
+    func `ICODE SLIX2 configuration`() {
         let config = ISO15693Memory.icodeSLIX2
         #expect(config.blockSize == 4)
         #expect(config.blockCount == 80)
         #expect(config.totalBytes == 320)
     }
 
-    @Test("ST25TV512 configuration")
-    func st25tv512Config() {
+    @Test
+    func `ST25TV512 configuration`() {
         let config = ISO15693Memory.st25tv512
         #expect(config.blockSize == 4)
         #expect(config.blockCount == 16)
         #expect(config.totalBytes == 64)
     }
 
-    @Test("ST25TV02K configuration")
-    func st25tv02KConfig() {
+    @Test
+    func `ST25TV02K configuration`() {
         let config = ISO15693Memory.st25tv02K
         #expect(config.blockSize == 4)
         #expect(config.blockCount == 64)
         #expect(config.totalBytes == 256)
     }
 
-    @Test("ISO 15693 security manager writes and locks AFI / DSFID")
-    func configureAFIAndDSFID() async throws {
+    @Test
+    func `ISO 15693 security manager writes and locks AFI / DSFID`() async throws {
         let transport = MockISO15693SecurityTransport()
         let manager = ISO15693SecurityManager(transport: transport)
 
@@ -63,8 +63,8 @@ struct ISO15693Tests {
         ])
     }
 
-    @Test("ISO 15693 security manager forwards custom command and auth primitives")
-    func customCommandAndAuth() async throws {
+    @Test
+    func `ISO 15693 security manager forwards custom command and auth primitives`() async throws {
         let transport = MockISO15693SecurityTransport(
             customCommandResponse: Data([0xDE, 0xAD]),
             authenticateResponse: .init(responseFlags: 0x01, data: Data([0xAA, 0xBB])),
