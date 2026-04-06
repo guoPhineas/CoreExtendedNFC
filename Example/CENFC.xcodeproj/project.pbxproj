@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		504CD4592F608D290015F2E4 /* ColorfulX in Frameworks */ = {isa = PBXBuildFile; productRef = 504CD4582F608D290015F2E4 /* ColorfulX */; };
-		504CD45C2F608D360015F2E4 /* GlyphixTextFx in Frameworks */ = {isa = PBXBuildFile; productRef = 504CD45B2F608D360015F2E4 /* GlyphixTextFx */; };
 		504CD45F2F608D480015F2E4 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 504CD45E2F608D480015F2E4 /* SnapKit */; };
 		504CD4622F608D540015F2E4 /* SwifterSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 504CD4612F608D540015F2E4 /* SwifterSwift */; };
 		504CD4652F608D650015F2E4 /* Then in Frameworks */ = {isa = PBXBuildFile; productRef = 504CD4642F608D650015F2E4 /* Then */; };
@@ -81,7 +80,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				508966122F7005B200F40110 /* ConfigurableKit in Frameworks */,
-				504CD45C2F608D360015F2E4 /* GlyphixTextFx in Frameworks */,
 				504CD4652F608D650015F2E4 /* Then in Frameworks */,
 				504CD4672F608D8A0015F2E4 /* CoreExtendedNFC in Frameworks */,
 				5067F67B2F6169DB00633731 /* SPIndicator in Frameworks */,
@@ -157,7 +155,6 @@
 			name = CENFC;
 			packageProductDependencies = (
 				504CD4582F608D290015F2E4 /* ColorfulX */,
-				504CD45B2F608D360015F2E4 /* GlyphixTextFx */,
 				504CD45E2F608D480015F2E4 /* SnapKit */,
 				504CD4612F608D540015F2E4 /* SwifterSwift */,
 				504CD4642F608D650015F2E4 /* Then */,
@@ -249,9 +246,7 @@
 			mainGroup = 501BBCF72F5D768E00C52667;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				504CD4482F608CC80015F2E4 /* XCRemoteSwiftPackageReference "MarkdownView" */,
 				504CD4572F608D290015F2E4 /* XCRemoteSwiftPackageReference "ColorfulX" */,
-				504CD45A2F608D360015F2E4 /* XCRemoteSwiftPackageReference "GlyphixTextFx" */,
 				504CD45D2F608D480015F2E4 /* XCRemoteSwiftPackageReference "SnapKit" */,
 				504CD4602F608D540015F2E4 /* XCRemoteSwiftPackageReference "SwifterSwift" */,
 				504CD4632F608D650015F2E4 /* XCRemoteSwiftPackageReference "Then" */,
@@ -668,28 +663,12 @@
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		504CD4482F608CC80015F2E4 /* XCRemoteSwiftPackageReference "MarkdownView" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/Lakr233/MarkdownView";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 3.8.2;
-			};
-		};
 		504CD4572F608D290015F2E4 /* XCRemoteSwiftPackageReference "ColorfulX" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Lakr233/ColorfulX";
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 6.1.0;
-			};
-		};
-		504CD45A2F608D360015F2E4 /* XCRemoteSwiftPackageReference "GlyphixTextFx" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/ktiays/GlyphixTextFx/";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.3.6;
 			};
 		};
 		504CD45D2F608D480015F2E4 /* XCRemoteSwiftPackageReference "SnapKit" */ = {
@@ -739,11 +718,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 504CD4572F608D290015F2E4 /* XCRemoteSwiftPackageReference "ColorfulX" */;
 			productName = ColorfulX;
-		};
-		504CD45B2F608D360015F2E4 /* GlyphixTextFx */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 504CD45A2F608D360015F2E4 /* XCRemoteSwiftPackageReference "GlyphixTextFx" */;
-			productName = GlyphixTextFx;
 		};
 		504CD45E2F608D480015F2E4 /* SnapKit */ = {
 			isa = XCSwiftPackageProductDependency;
