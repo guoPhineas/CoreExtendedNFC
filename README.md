@@ -58,6 +58,8 @@ This library does.
 
 > DESFire write is limited to free-access files. Classic is ID-only — iOS hardware can't do Crypto1.
 
+Real hardware coverage is tracked in [Tested Cards](docs/Tested-Cards.md).
+
 ## Quick Start
 
 ```swift
@@ -168,6 +170,8 @@ swift test    # 319 tests, 30 suites
 ```
 
 All test vectors are sourced from public standards (ICAO 9303, NIST FIPS, NXP datasheets, RFCs). See [Test-Provenance.md](Research/Test-Provenance.md).
+
+Real-world card validation is listed in [Tested Cards](docs/Tested-Cards.md) (24 exported scans across Ultralight, NTAG, DESFire, Type 4, FeliCa, and ISO 15693 tags).
 
 > Testing is still in early stages — most coverage is against mock transports and standard test vectors, not exhaustive real-world hardware. If you run into issues with a specific card or passport, please [open an issue](https://github.com/Lakr233/CoreExtendedNFC/issues).
 
