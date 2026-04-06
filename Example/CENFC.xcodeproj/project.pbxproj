@@ -38,8 +38,8 @@
 		501BBD002F5D768E00C52667 /* CENFC.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CENFC.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		50AA00022F70000100AA0002 /* CENFCTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CENFCTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		50BB00022F80000100BB0002 /* CENFCUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CENFCUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		50CF00A12F70CF010015F2E4 /* CENFC/Configuration/Development.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = CENFC/Configuration/Development.xcconfig; sourceTree = "<group>"; };
-		50CF00A22F70CF020015F2E4 /* CENFC/Configuration/Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = CENFC/Configuration/Release.xcconfig; sourceTree = "<group>"; };
+		50CF00012F90000100CF0001 /* Development.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "CENFC/Configuration/Development.xcconfig"; sourceTree = "<group>"; };
+		50CF00022F90000100CF0002 /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "CENFC/Configuration/Release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -118,7 +118,6 @@
 				50BB00092F80000100BB0009 /* CENFCUITests */,
 				503A36B92F5D785B00C51966 /* Frameworks */,
 				501BBD012F5D768E00C52667 /* Products */,
-				5066B82B2F6178AD00469AB7 /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
@@ -137,15 +136,6 @@
 			children = (
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		5066B82B2F6178AD00469AB7 /* Recovered References */ = {
-			isa = PBXGroup;
-			children = (
-				50CF00A12F70CF010015F2E4 /* CENFC/Configuration/Development.xcconfig */,
-				50CF00A22F70CF020015F2E4 /* CENFC/Configuration/Release.xcconfig */,
-			);
-			name = "Recovered References";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -347,7 +337,7 @@
 /* Begin XCBuildConfiguration section */
 		501BBD092F5D768F00C52667 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 50CF00A12F70CF010015F2E4 /* CENFC/Configuration/Development.xcconfig */;
+			baseConfigurationReference = 50CF00012F90000100CF0001 /* Development.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -382,7 +372,6 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = 964G86XT2P;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -415,7 +404,7 @@
 		};
 		501BBD0A2F5D768F00C52667 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 50CF00A22F70CF020015F2E4 /* CENFC/Configuration/Release.xcconfig */;
+			baseConfigurationReference = 50CF00022F90000100CF0002 /* Release.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -450,7 +439,6 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = 964G86XT2P;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -476,12 +464,11 @@
 		};
 		501BBD0C2F5D768F00C52667 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 50CF00A12F70CF010015F2E4 /* CENFC/Configuration/Development.xcconfig */;
+			baseConfigurationReference = 50CF00012F90000100CF0001 /* Development.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = CENFC/Resources/Entitlements.entitlements;
-				CURRENT_PROJECT_VERSION = 8;
 				ENABLE_ENHANCED_SECURITY = YES;
 				ENABLE_POINTER_AUTHENTICATION = NO;
 				ENABLE_PREVIEWS = YES;
@@ -500,7 +487,6 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.3;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -515,12 +501,11 @@
 		};
 		501BBD0D2F5D768F00C52667 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 50CF00A22F70CF020015F2E4 /* CENFC/Configuration/Release.xcconfig */;
+			baseConfigurationReference = 50CF00022F90000100CF0002 /* Release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = CENFC/Resources/Entitlements.entitlements;
-				CURRENT_PROJECT_VERSION = 8;
 				ENABLE_ENHANCED_SECURITY = YES;
 				ENABLE_POINTER_AUTHENTICATION = NO;
 				ENABLE_PREVIEWS = YES;
@@ -540,7 +525,6 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.3;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -555,7 +539,6 @@
 		};
 		50AA00062F70000100AA0006 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 50CF00A12F70CF010015F2E4 /* CENFC/Configuration/Development.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				GENERATE_INFOPLIST_FILE = YES;
@@ -571,7 +554,6 @@
 		};
 		50AA00072F70000100AA0007 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 50CF00A22F70CF020015F2E4 /* CENFC/Configuration/Release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				GENERATE_INFOPLIST_FILE = YES;
@@ -587,7 +569,6 @@
 		};
 		50BB00062F80000100BB0006 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 50CF00A12F70CF010015F2E4 /* CENFC/Configuration/Development.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -608,7 +589,6 @@
 		};
 		50BB00072F80000100BB0007 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 50CF00A22F70CF020015F2E4 /* CENFC/Configuration/Release.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				GENERATE_INFOPLIST_FILE = YES;
