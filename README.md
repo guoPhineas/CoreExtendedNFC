@@ -200,4 +200,5 @@ MIT
 
 ## Sponsor
 
-[LookInside](https://lookinside-app.com/) helps you inspect a running iOS or macOS app UI from your Mac.
+- [LookInside](https://lookinside-app.com/) helps you inspect a running iOS or macOS app UI from your Mac.
+- This project/repository is sponsored by AFK AI, INC.
